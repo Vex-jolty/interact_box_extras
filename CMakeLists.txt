@@ -150,7 +150,7 @@ endfunction()
 
 add_library(extras_config INTERFACE)
 
-target_include_directories(extras_config INTERFACE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/interact_box_libs/include)
+target_include_directories(extras_config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/interact_box_libs/include)
 
 target_compile_options(extras_config INTERFACE
 	-fcf-protection=none
