@@ -10,8 +10,6 @@ target_link_libraries(message_box_process PRIVATE extras_config)
 
 link_to_wxWidgets(message_box_process)
 
-
-
 target_link_libraries(message_box_process
   PRIVATE
   string_helper
