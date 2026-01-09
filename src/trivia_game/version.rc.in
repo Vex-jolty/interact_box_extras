@@ -1,0 +1,42 @@
+#include <windows.h>
+#include "winver.h"
+
+#if WINVER < _WIN32_WINNT_WINXP
+  #define PRODUCT_NAME "Interact Box 98"
+#elif WINVER == _WIN32_WINNT_WINXP
+  #define PRODUCT_NAME "Interact Box XP"
+#else
+  #define PRODUCT_NAME "Interact Box Vista"
+#endif
+
+#define STRINGIZE2(x) #x
+#define STRINGIZE(x) STRINGIZE2(x)
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION @VERSION_MAJOR@,@VERSION_MINOR@,@VERSION_PATCH@,0
+ PRODUCTVERSION @VERSION_MAJOR@,@VERSION_MINOR@,@VERSION_PATCH@,0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS VOS__WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE VFT2_UNKNOWN
+{
+  BLOCK "StringFileInfo"
+  {
+    BLOCK "040904E4"
+    {
+      VALUE "CompanyName", "@COMPANY_NAME@\0"
+      VALUE "FileDescription", PRODUCT_NAME " Trivia Game\0"
+      VALUE "FileVersion", "@VERSION_STRING@\0"
+      VALUE "InternalName", "@INTERNAL_NAME@\0"
+      VALUE "LegalCopyright", "@COPYRIGHT@\0"
+      VALUE "OriginalFilename", "@ORIGINAL_FILENAME@\0"
+      VALUE "ProductName", PRODUCT_NAME "\0"
+      VALUE "ProductVersion", "@VERSION_STRING@\0"
+    }
+  }
+  BLOCK "VarFileInfo"
+  {
+    VALUE "Translation", 0x0409, 1252
+  }
+}

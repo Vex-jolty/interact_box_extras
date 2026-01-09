@@ -1,0 +1,11 @@
+#ifndef _INC_SDKDDKVER
+  #include <sdkddkver.h>
+#endif
+#include "interact_box_settings/resources.h"
+#if WINVER < _WIN32_WINNT_WINXP
+  IDI_ICON1 ICON "icon/config_icon-win98.ico"
+#elif WINVER == _WIN32_WINNT_WINXP
+  IDI_ICON1 ICON "icon/config_icon-winxp.ico"
+#else
+  IDI_ICON1 ICON "icon/config_icon-vista.ico"
+#endif

@@ -1,0 +1,3 @@
+#include "trivia_game/resources.h"
+IDR_JSON JSON "questions.json"
+IDI_ICON1 ICON icon/trivia_game_icon.ico

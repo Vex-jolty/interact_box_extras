@@ -1,0 +1,1 @@
+#include "interact_box_settings/widgets/string_edit_widget.hpp"

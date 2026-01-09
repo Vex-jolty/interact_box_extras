@@ -1,0 +1,7 @@
+build/
+.vscode/
+banned_words.txt
+*.png
+*.bmp
+questions.json
+audio/

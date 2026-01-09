@@ -1,0 +1,1 @@
+#include "interact_box_settings/widgets/int_edit_widget.hpp"

@@ -1,0 +1,12 @@
+#pragma once
+#include <windows.h>
+#include <string>
+#include <vector>
+#include <map>
+#include <iostream>
+#include <limits>
+#include <iterator>
+#include <algorithm>
+#include <chrono>
+#include <atomic>
+#include <pthread.h>
