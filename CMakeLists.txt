@@ -120,11 +120,9 @@ function(link_to_wxWidgets target)
 endfunction()
 
 function(add_version_resource target)
-  # ---- Derive filenames from target name
   set(INTERNAL_NAME "${target}.exe")
   set(ORIGINAL_FILENAME "${target}.exe")
 
-    # ---- Version info (can be overridden before calling)
     if(NOT DEFINED VERSION_MAJOR)
       set(VERSION_MAJOR 1)
       set(VERSION_MINOR 0)
@@ -135,19 +133,16 @@ function(add_version_resource target)
     "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
   )
 
-  # ---- Output path (target-local!)
   set(OUT_RC
     ${CMAKE_CURRENT_BINARY_DIR}/${target}_version.rc
   )
 
-  # ---- Configure the resource
   configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in
     ${OUT_RC}
     @ONLY
   )
 
-  # ---- Attach to target
   target_sources(${target} PRIVATE ${OUT_RC})
 endfunction()
 

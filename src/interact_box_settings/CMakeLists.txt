@@ -11,8 +11,6 @@ add_executable(
   resources.rc
 )
 
-#target_include_directories(interact_box_settings PRIVATE extras_config ${CMAKE_SOURCE_DIR}/include)
-
 set_windows_version_definitions(interact_box_settings ${TARGET_WINDOWS_VERSION})
 
 target_link_libraries(
