@@ -10,7 +10,9 @@ if (NOT MINGW)
 	message(FATAL_ERROR "${CMAKE_CXX_COMPILER_ID} is not a currently supported compiler")
 endif()
 
-add_subdirectory(interact_box_libs)
+if (NOT BUILDING_FULL_PACKAGE)
+  add_subdirectory(${CMAKE_SOURCE_DIR}/interact_box_libs)
+endif()
 
 set(TARGET_WINDOWS_VERSION "win98" CACHE STRING "The version of Windows to target (win98, winme, win2k, winxp, vista, win7, win8, win10, win11)")
 
@@ -181,10 +183,48 @@ execute_process(
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+set(TARGETS_FOR_EXPORT
+  interact_box_settings
+  malware_date_settings
+  message_box_process
+  trivia_game
+)
+
 add_subdirectory(src/interact_box_settings)
 add_subdirectory(src/malware_date_settings)
 add_subdirectory(src/message_box_process)
 add_subdirectory(src/trivia_game)
-if (NOT TARGET_WINDOWS_VERSION STREQUAL "win98")
+if (NOT TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_WRAPPERS)
   add_subdirectory(src/tts_process)
+  list(APPEND TARGETS_FOR_EXPORT tts_process)
 endif()
+
+install(
+	TARGETS
+		${TARGETS_FOR_EXPORT}
+	EXPORT InteractBoxExtrasTargets
+)
+
+install(
+	EXPORT InteractBoxExtrasTargets
+	NAMESPACE InteractBoxExtras::
+	DESTINATION lib/cmake/InteractBoxExtras
+)
+
+install(
+	DIRECTORY include/
+	DESTINATION include
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+	cmake/InteractBoxExtrasConfig.cmake.in
+	${CMAKE_CURRENT_BINARY_DIR}/InteractBoxExtrasConfig.cmake
+	INSTALL_DESTINATION lib/cmake/InteractBoxExtras
+)
+
+install(
+	FILES ${CMAKE_CURRENT_BINARY_DIR}/InteractBoxExtrasConfig.cmake
+	DESTINATION lib/cmake/InteractBoxExtras
+)
