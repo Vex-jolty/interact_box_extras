@@ -118,7 +118,7 @@ function(link_to_wxWidgets target)
       msvcrt40
     )
   endif()
-  target_link_options(${target} PRIVATE -static -static-libgcc -static-libstdc++)
+  target_link_options(${target} PRIVATE -static)
 endfunction()
 
 function(add_version_resource target)
@@ -158,10 +158,12 @@ target_compile_options(extras_config INTERFACE
 
 target_compile_options(extras_config INTERFACE
 	$<$<CONFIG:Release>:-ffunction-sections -fdata-sections -s>
+  $<$<CONFIG:Debug>:-g -gdwarf-4 -O0 -fno-omit-frame-pointer>
 )
 
 target_link_options(extras_config INTERFACE
 	$<$<CONFIG:Release>:-Wl,--gc-sections>
+  $<$<CONFIG:Debug>:-g>
 )
 
 target_link_options(extras_config INTERFACE
