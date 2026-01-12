@@ -1,2 +1,0 @@
-#include "tts_process/resources.h"
-IDR_BANNED_WORDS RCDATA "banned_words.txt"
