@@ -41,7 +41,11 @@ endif()
 if(CMAKE_C_COMPILER_TARGET)
     set(WX_COMPILER_TRIPLET ${CMAKE_C_COMPILER_TARGET})
 elseif(MINGW)
+  if(TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_MSVCRT40)
     set(WX_COMPILER_TRIPLET i686-w64-mingw32)
+  else()
+    set(WX_COMPILER_TRIPLET x86_64-w64-mingw32)
+  endif()
 else()
     message(FATAL_ERROR "Cannot determine wxWidgets compiler triplet")
 endif()
@@ -91,6 +95,7 @@ function(link_to_wxWidgets target)
     ${WX_LIBS_TO_LINK}
     shell32
     shlwapi
+    uuid
     ole32
     oleaut32
     oleacc
@@ -109,7 +114,7 @@ function(link_to_wxWidgets target)
     uxtheme
     glu32
     regex
-    wsock32 comctl32 shell32 advapi32 uuid gdi32 winmm comdlg32 version ws2_32 winhttp
+    wsock32 comctl32 shell32 advapi32 gdi32 winmm comdlg32 version ws2_32 winhttp
     rpcrt4
     winspool
   )
