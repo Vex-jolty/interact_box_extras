@@ -1,5 +1,4 @@
 #pragma once
-#include <winsock2.h>
 #include "processes.hpp"
 #include "string_helper.hpp"
 #include <algorithm>

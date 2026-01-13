@@ -79,7 +79,7 @@ int main(int argc, char const* argv[]) {
 				WCHAR* pDescription = nullptr;
 				hr = SpGetDescription(pToken, &pDescription);
 				if (SUCCEEDED(hr)) {
-					// Get Microsoft Sam
+					// Get Microsoft Sam if exists
 					if (wcsstr(pDescription, L"Microsoft Sam") != nullptr) {
 						pVoice->SetVoice(pToken);
 						CoTaskMemFree(pDescription);

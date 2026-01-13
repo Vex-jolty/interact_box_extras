@@ -1,3 +1,6 @@
 #include "trivia_game/resources.h"
 IDR_JSON JSON @QUESTIONS_FILE@
 IDI_ICON1 ICON icon/trivia_game_icon.ico
+#if WINVER >= _WIN32_WINNT_VISTA
+  1 24 "app.manifest"
+#endif

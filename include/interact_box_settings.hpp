@@ -1,9 +1,7 @@
 #pragma once
-#include <winsock2.h>
-#include <windows.h>
-#include <wx/wx.h>
 #include "processes.hpp"
 #include "exported.hpp"
+#include <wx/wx.h>
 #include "interact_box_settings/widgets/widgets_exported.hpp"
 #include "interact_box_settings/resources.h"
 #include <json/json_features.h>

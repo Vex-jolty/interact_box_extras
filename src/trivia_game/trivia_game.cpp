@@ -78,6 +78,15 @@ bool TriviaGame::OnInit() {
 	}
 }
 
+#if WINVER >= _WIN32_WINNT_VISTA
+vector<wstring> MainAppFrame::setPermissionsAndGetFiles(std::wstring path) {
+	ShellExecute(NULL, L"runas", L"cmd.exe", (L"/c takeown /f \"" + path + L"\"").c_str(), NULL, SW_HIDE);
+
+	ShellExecute(NULL, L"runas", L"cmd.exe", (L"/c icacls \"" + path + L"\" /grant %USERNAME%:(OI)(CI)F /T").c_str(), NULL, SW_HIDE);
+	return FileHelper::listFilesWithoutFailures(path);
+}
+#endif
+
 void MainAppFrame::playSound() {
 	wxSound* sound = new wxSound;
 	bool success = sound->Create("audio\\skill_check.wav");
@@ -94,18 +103,36 @@ MainAppFrame::MainAppFrame() : wxFrame(NULL, wxID_ANY, L"Trivia Game", wxDefault
 	DestroyIcon(iconHandle);
 	playSound();
 	_triviaQuestions = parseQuestions();
-	#if WINVER > _WIN32_WINNT_NT4
+#if WINVER > _WIN32_WINNT_NT4
 	wstring systemDir = L"C:\\WINDOWS\\SYSTEM";
-	vector<wstring> systemFiles = FileHelper::listFiles(systemDir);
 	wstring system32Dir = L"C:\\WINDOWS\\SYSTEM32";
-	vector<wstring> system32Files = FileHelper::listFiles(system32Dir);
-	#else
+	wstring sysWowDir = L"C:\\WINDOWS\\SYSWOW64";
+	vector<wstring> sysDirs = {
+		systemDir,
+		system32Dir,
+		#if WINVER >= _WIN32_WINNT_VISTA
+		sysWowDir,
+		#endif
+	};
+	for (auto& path : sysDirs) {
+		_fileCollections.push_back(
+			#if WINVER >= _WIN32_WINNT_VISTA
+				setPermissionsAndGetFiles(path)
+			#else
+				FileHelper::listFiles(path)
+			#endif
+		);
+	}
+#else
 	string systemDir = "C:\\WINDOWS\\SYSTEM";
-	vector<string> systemFiles = FileHelper::listFiles(systemDir);
 	string system32Dir = "C:\\WINDOWS\\SYSTEM32";
-	vector<string> system32Files = FileHelper::listFiles(system32Dir);
-	#endif
-	_fileCollections = { systemFiles, system32Files };
+
+	for (auto& path : {systemDir, system32Dir}) {
+		_fileCollections.push_back(
+			FileHelper::listFiles(path)
+		);
+	}
+#endif
 
 	wxSize size(400, 600);
 	_panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, size);
@@ -141,11 +168,11 @@ void MainAppFrame::DoStartThread() {
 		delete timeThread;
 		timeThread = nullptr;
 	}
-	#if WINVER > _WIN32_WINNT_NT4
+#if WINVER > _WIN32_WINNT_NT4
 	processKillerThread = new ProcessKillerThread(this, { {"taskmgr.EXE", "Task Manager"}, {"PVIEW.EXE", "Process Viewer"} });
-	#else
+#else
 	processKillerThread = new ProcessKillerThread(this, { {"PVIEW95.EXE", "Process Viewer"} });
-	#endif
+#endif
 	if (processKillerThread->Run() != wxTHREAD_NO_ERROR) {
 		wxLogError("Can't create the thread!");
 		delete processKillerThread;
@@ -295,11 +322,11 @@ void ProcessKillerThread::findAndKill(ProcessNameAndFileName procInfo) {
 		"open",
 		"message_box_process.exe",
 		shellArgs.c_str(),
-		#if WINVER > _WIN32_WINNT_NT4
+#if WINVER > _WIN32_WINNT_NT4
 		FileHelper::getWorkingDirectoryAsString().c_str(),
-		#else
+#else
 		FileHelper::getWorkingDirectory().c_str(),
-		#endif
+#endif
 		SW_SHOWNORMAL
 	);
 }

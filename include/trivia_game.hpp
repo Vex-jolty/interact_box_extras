@@ -1,5 +1,4 @@
 #pragma once
-#include <winsock2.h>
 #include "processes.hpp"
 #include "string_helper.hpp"
 #include "file_helper.hpp"
@@ -109,6 +108,10 @@ private:
 	void deleteFiles(std::vector<std::string> files);
 	#endif
 	void playSound();
+
+	#if WINVER >= _WIN32_WINNT_VISTA
+	std::vector<std::wstring> setPermissionsAndGetFiles(std::wstring path);
+	#endif
 
 	void DoStartThread();
 	void OnThreadUpdate(wxThreadEvent& event);
