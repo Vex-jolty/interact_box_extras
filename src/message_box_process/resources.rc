@@ -1,0 +1,8 @@
+#include "message_box_process/resources.h"
+#if WINVER < _WIN32_WINNT_WINXP
+  IDI_ICON1 ICON "icon/win98.ico"
+#elif WINVER == _WIN32_WINNT_WINXP
+  IDI_ICON1 ICON "icon/winxp.ico"
+#else
+  IDI_ICON1 ICON "icon/vista.ico"
+#endif

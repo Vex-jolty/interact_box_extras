@@ -4,6 +4,7 @@ find_package(Boost REQUIRED CONFIG)
 
 add_executable(
 	message_box_process message_box_process.cpp
+	resources.rc
 )
 
 target_link_libraries(message_box_process PRIVATE extras_config)

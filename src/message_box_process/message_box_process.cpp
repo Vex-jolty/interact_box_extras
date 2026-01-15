@@ -176,11 +176,16 @@ void CustomBox::_handleButtons() {
 }
 
 bool MessageBoxApp::OnInit() {
+	HICON iconHandle = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON1));
+	wxIcon icon;
+	icon.CreateFromHICON(iconHandle);
+	DestroyIcon(iconHandle);
 	parsedArgs = parseArgs(wxApp::argc, wxApp::argv);
 	CustomBox* box = createBox(parsedArgs[L"title"], parsedArgs[L"content"], parsedArgs[L"type"], parsedArgs[L"buttons"]);
+	box->SetIcon(icon);
+	int response = box->ShowModal();
 	SetTopWindow(box);
 	box->SetFocus();
-	int response = box->ShowModal();
 	box->EndModal(0);
 	delete box;
 	exit(0);
