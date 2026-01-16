@@ -8,7 +8,6 @@ namespace Structs {
 		ARRAY,
 	};
 
-
 	struct Setting {
 		std::string name;
 		Json::Value value;

