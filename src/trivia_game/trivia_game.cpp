@@ -226,7 +226,7 @@ void MainAppFrame::DoStartThread() {
 #ifdef WIN32
 	processes.push_back({"PVIEW.EXE", "Process Viewer"});
 	#if WINVER > _WIN32_WINNT_NT4
-		processes.push_back({"taskmgr.EXE", "Task Manager"})
+		processes.push_back({"taskmgr.EXE", "Task Manager"});
 	#endif
 #endif
 	processKillerThread = new ProcessKillerThread(

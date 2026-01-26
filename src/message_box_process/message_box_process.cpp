@@ -125,8 +125,8 @@ vector<wstring> parseButtons(wstring buttonsString) {
 
 #else
 map<string, string> parsedArgs;
-vector<string> buttonsToCapitalize = {"OK",	 "Help",		"Abort",		 "Retry", "Ignore",
-																			 "Try", "Cancel", "Continue", "Yes",	 "No"};
+vector<string> buttonsToCapitalize = {"OK",	 "Help",	 "Abort",		 "Retry", "Ignore",
+																			"Try", "Cancel", "Continue", "Yes",		"No"};
 vector<DefaultButtonOption> defaultOptions = {
 	DefaultButtonOption(
 		{
@@ -154,8 +154,8 @@ vector<DefaultButtonOption> defaultOptions = {
 	),
 	DefaultButtonOption({"help", "h"}, {"Help"}),
 	DefaultButtonOption(
-		{"ok/cancel", "oc", "kc", "o/c", "k/c", "o c", "k c", "cancel", "ok cancel",
-		 "ok;cancel", "k;c", "o;c"},
+		{"ok/cancel", "oc", "kc", "o/c", "k/c", "o c", "k c", "cancel", "ok cancel", "ok;cancel", "k;c",
+		 "o;c"},
 		{"OK", "Cancel"}
 	),
 	DefaultButtonOption(
@@ -165,10 +165,7 @@ vector<DefaultButtonOption> defaultOptions = {
 		 "retry;cancel"},
 		{"Retry", "Cancel"}
 	),
-	DefaultButtonOption(
-		{"yes/no", "yn", "y/n", "y n", "yes no", "y;n", "yes;no"},
-		{"Yes", "No"}
-	),
+	DefaultButtonOption({"yes/no", "yn", "y/n", "y n", "yes no", "y;n", "yes;no"}, {"Yes", "No"}),
 	DefaultButtonOption(
 		{"yes/no/cancel", "ync", "y/n/c", "y n c", "yes no cancel", "y;n;c", "yes;no;cancel"},
 		{"Yes", "No", "Cancel"}
@@ -222,10 +219,9 @@ CustomBox* createBox(string title, string message, string typeString, string but
 
 vector<string> parseButtons(string buttonsString) {
 	for (auto& option : defaultOptions) {
-		if (any_of(
-					option.validInputs.begin(), option.validInputs.end(),
-					[&buttonsString](string item) { return boost::iequals(item, buttonsString); }
-				)) {
+		if (any_of(option.validInputs.begin(), option.validInputs.end(), [&buttonsString](string item) {
+					return boost::iequals(item, buttonsString);
+				})) {
 			return option.resultingButtons;
 		}
 	}
@@ -259,14 +255,26 @@ void CustomBox::_handleButtons() {
 }
 
 bool MessageBoxApp::OnInit() {
+#ifdef WIN32
+	HICON iconHandle = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON1));
+	wxIcon icon;
+	icon.CreateFromHICON(iconHandle);
+#else
 	wxIcon icon;
 	wxMemoryInputStream stream(icon_linux_ico, icon_linux_ico_len);
 	wxImage image(stream, wxBITMAP_TYPE_PNG);
 	icon.CopyFromBitmap(wxBitmap(image));
+#endif
 	parsedArgs = parseArgs(wxApp::argc, wxApp::argv);
+#ifdef WIN32
+	CustomBox* box = createBox(
+		parsedArgs[L"title"], parsedArgs[L"content"], parsedArgs[L"type"], parsedArgs[L"buttons"]
+	);
+#else
 	CustomBox* box = createBox(
 		parsedArgs["title"], parsedArgs["content"], parsedArgs["type"], parsedArgs["buttons"]
 	);
+#endif
 	box->SetIcon(icon);
 	int response = box->ShowModal();
 	SetTopWindow(box);
