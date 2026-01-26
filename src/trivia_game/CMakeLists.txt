@@ -12,18 +12,23 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/icon/trivia_game_icon.ico DESTINATION ${CM
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/app.manifest DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-set(OUT_RESOURCES_RC
-	${CMAKE_CURRENT_BINARY_DIR}/resources.rc
-)
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/resources.rc.in
-	${OUT_RESOURCES_RC}
-	@ONLY
-)
+set(TARGET_FILES trivia_game.cpp)
+
+if (WIN32)
+	set(OUT_RESOURCES_RC
+		${CMAKE_CURRENT_BINARY_DIR}/resources.rc
+	)
+	configure_file(
+		${CMAKE_CURRENT_SOURCE_DIR}/resources.rc.in
+		${OUT_RESOURCES_RC}
+		@ONLY
+	)
+	list(APPEND TARGET_FILES ${OUT_RESOURCES_RC})
+endif()
 
 add_executable(
-	trivia_game trivia_game.cpp
-	${OUT_RESOURCES_RC}
+	trivia_game ${TARGET_FILES}
+	
 )
 
 link_to_wxWidgets(trivia_game)

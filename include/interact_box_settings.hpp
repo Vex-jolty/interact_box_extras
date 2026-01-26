@@ -2,6 +2,9 @@
 #include "processes.hpp"
 #include "exported.hpp"
 #include <wx/wx.h>
+#ifdef __linux__
+	#include <wx/mstream.h>
+#endif
 #include "interact_box_settings/widgets/widgets_exported.hpp"
 #include "interact_box_settings/resources.h"
 #include <json/json_features.h>
@@ -20,18 +23,18 @@ class MyFrame : public wxFrame {
 		MyFrame();
 
 	private:
-		void parseSettings(wxPanel *panel, wxBoxSizer *sizer);
-		void OnSave(wxCommandEvent &event);
-		void OnExit(wxCommandEvent &event);
-		void OnClose(wxCloseEvent &event);
-		void OnChange(wxCommandEvent &event);
+		void parseSettings(wxPanel* panel, wxBoxSizer* sizer);
+		void OnSave(wxCommandEvent& event);
+		void OnExit(wxCommandEvent& event);
+		void OnClose(wxCloseEvent& event);
+		void OnChange(wxCommandEvent& event);
 		void promptUserIfModified();
-		int getSettingPositionPriorityByType(const Json::Value &setting);
+		int getSettingPositionPriorityByType(const Json::Value& setting);
 		int getSettingPositionPriorityByName(
-			const std::string &key,
-			const std::unordered_map<std::string, int> &namePriorities
+			const std::string& key,
+			const std::unordered_map<std::string, int>& namePriorities
 		);
-		std::vector<std::pair<std::string, Json::Value>> sortSettings(Json::Value &initialSettings);
+		std::vector<std::pair<std::string, Json::Value>> sortSettings(Json::Value& initialSettings);
 
 		bool _hasSaved = false;
 		bool _isModified = false;

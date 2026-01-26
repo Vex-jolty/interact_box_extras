@@ -21,3 +21,4 @@ IndentCaseLabels: true
 SortIncludes: false
 IndentPPDirectives: BeforeHash
 AlignOperands: DontAlign
+PointerAlignment: Left

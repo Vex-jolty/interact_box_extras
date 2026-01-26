@@ -6,17 +6,17 @@
 class DirectoryEditWidget : public wxPanel {
 	public:
 		DirectoryEditWidget(
-			wxWindow *parent,
+			wxWindow* parent,
 			wxWindowID id,
 			std::string name,
-			Json::Value &jsonSettings
+			Json::Value& jsonSettings
 		)
 				: _name(name), _jsonSettings(jsonSettings) {
 			std::regex isFullPathPattern(R"([A-Z]:\\.*)");
 			Create(parent, id);
 			bool isFullPath = std::regex_match(_jsonSettings[_name].asString(), isFullPathPattern);
 			if (!isFullPath) {
-#if WINVER > _WIN32_WINNT_NT4
+#if defined(WIN32) && WINVER > _WIN32_WINNT_NT4
 				_jsonSettings[_name] =
 					FileHelper::getWorkingDirectoryAsString() + "\\" + _jsonSettings[_name].asString();
 #else
@@ -38,21 +38,21 @@ class DirectoryEditWidget : public wxPanel {
 			);
 			SetSizerAndFit(sizer);
 			Show();
-			Bind(wxEVT_BUTTON, &onButtonClick, this, buttonId);
-			Bind(wxEVT_TEXT, &onTextChange, this, id);
+			Bind(wxEVT_BUTTON, &DirectoryEditWidget::onButtonClick, this, buttonId);
+			Bind(wxEVT_TEXT, &DirectoryEditWidget::onTextChange, this, id);
 		}
 
 	private:
 		std::string _name;
-		Json::Value &_jsonSettings;
-		wxTextCtrl *_textControl;
-		wxButton *_button;
-		wxDirDialog *_dirDialog;
-		void onTextChange(wxCommandEvent &event) {
+		Json::Value& _jsonSettings;
+		wxTextCtrl* _textControl;
+		wxButton* _button;
+		wxDirDialog* _dirDialog;
+		void onTextChange(wxCommandEvent& event) {
 			_jsonSettings[_name] = (std::string)event.GetString();
 			event.Skip();
 		}
-		void onButtonClick(wxCommandEvent &event) {
+		void onButtonClick(wxCommandEvent& event) {
 			int result = _dirDialog->ShowModal();
 			if (result == wxID_OK) {
 #if WINVER > _WIN32_WINNT_NT4

@@ -5,10 +5,10 @@
 
 class LoggingEditWidget : public wxChoice {
 	public:
-		LoggingEditWidget(wxWindow *parent, int id, Json::Value &jsonSettings);
+		LoggingEditWidget(wxWindow* parent, int id, Json::Value& jsonSettings);
 
 	private:
 		wxArrayString _choices;
-		Json::Value &_jsonSettings;
-		void onChoice(wxCommandEvent &event);
+		Json::Value& _jsonSettings;
+		void onChoice(wxCommandEvent& event);
 };

@@ -1,11 +1,13 @@
 #include "interact_box_settings/widgets/array_edit_widget.hpp"
-#include <sdkddkver.h>
+#ifdef WIN32
+	#include <sdkddkver.h>
+#endif
 using namespace std;
 
-void ArrayEditWidget::onTextChange(wxCommandEvent &event) {
+void ArrayEditWidget::onTextChange(wxCommandEvent& event) {
 	vector<string> stringVec = StringHelper::splitString((string)event.GetString(), ", ");
 	Json::Value newArray(Json::arrayValue);
-	for (auto &item : stringVec) {
+	for (auto& item : stringVec) {
 		newArray.append(item);
 	}
 	_arrayValue = newArray;

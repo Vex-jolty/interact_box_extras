@@ -1,6 +1,8 @@
 #pragma once
-#include <winsock2.h>
-#include <windows.h>
+#ifdef WIN32
+	#include <winsock2.h>
+	#include <windows.h>
+#endif
 #include <string>
 #include <vector>
 #include <map>

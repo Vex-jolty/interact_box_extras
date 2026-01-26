@@ -11,9 +11,9 @@
 #include "string_helper.hpp"
 #include <boost/algorithm/algorithm.hpp>
 
-void loadFileInResource(int name, std::string type, DWORD &size, const char *&data);
+void loadFileInResource(int name, std::string type, DWORD& size, const char*& data);
 void replaceBannedWords(
-	std::string &input,
+	std::string& input,
 	std::vector<std::string> bannedWords,
 	std::string replacement
 );

@@ -4,15 +4,24 @@ project(InteractBoxExtras VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_SYSTEM_NAME Windows)
 
-if (NOT MINGW)
-	message(FATAL_ERROR "${CMAKE_CXX_COMPILER_ID} is not a currently supported compiler")
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	if (NOT MINGW)
+		message(FATAL_ERROR "${CMAKE_CXX_COMPILER_ID} is not a currently supported compiler")
+	endif()
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+
+else()
+	message(FATAL_ERROR "${CMAKE_SYSTEM_NAME} is not a currently supported operating system")
 endif()
 
 if (NOT BUILDING_FULL_PACKAGE)
 	add_subdirectory(${CMAKE_SOURCE_DIR}/interact_box_libs)
 endif()
+
+set(TARGET_LINUX_GUI "qt" CACHE STRING "The GUI to use on Linux")
+
+set_property(CACHE TARGET_LINUX_GUI PROPERTY STRINGS gtk3 qt)
 
 set(TARGET_WINDOWS_VERSION "win98" CACHE STRING "The version of Windows to target (win98, winme, win2k, winxp, vista, win7, win8, win10, win11)")
 
@@ -30,127 +39,168 @@ if(NOT DEFINED TARGET_WINDOWS_VERSION)
 	)
 endif()
 
-if (TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_WRAPPERS)
+if (NOT DEFINED TARGET_LINUX_GUI)
+	set(TARGET_LINUX_GUI "qt"
+		CACHE STRING "Target Linux GUI"
+	)
+endif()
+
+if (WIN32 AND TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_WRAPPERS)
 	set(WX_VERSION "2.9")
 else()
-	set (WX_VERSION "3.2")
+	set(WX_VERSION "3.2")
 endif()
 
 # This block is VERY SPECIFIC to the maintainer's setup
 #add_definitions(wxWidgets_ROOT_DIR ${CMAKE_PREFIX_PATH})
-if(CMAKE_C_COMPILER_TARGET)
-		set(WX_COMPILER_TRIPLET ${CMAKE_C_COMPILER_TARGET})
-elseif(MINGW)
-	if(TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_MSVCRT40)
-		set(WX_COMPILER_TRIPLET i686-w64-mingw32)
+if(WIN32)
+	if(CMAKE_C_COMPILER_TARGET)
+			set(WX_COMPILER_TRIPLET ${CMAKE_C_COMPILER_TARGET})
+	elseif(MINGW)
+		if(TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_MSVCRT40)
+			set(WX_COMPILER_TRIPLET i686-w64-mingw32)
+		else()
+			set(WX_COMPILER_TRIPLET x86_64-w64-mingw32)
+		endif()
 	else()
-		set(WX_COMPILER_TRIPLET x86_64-w64-mingw32)
+			message(FATAL_ERROR "Cannot determine wxWidgets compiler triplet")
 	endif()
+	set(WXWIDGETS_INCLUDE_DIR "${CMAKE_PREFIX_PATH}/include/wx-${WX_VERSION}")
+	set(WXWIDGETS_SETUP_DIR "${CMAKE_PREFIX_PATH}/lib/wx/include/${WX_COMPILER_TRIPLET}-msw-unicode-static-${WX_VERSION}")
 else()
-		message(FATAL_ERROR "Cannot determine wxWidgets compiler triplet")
+	set(WXWIDGETS_INCLUDE_DIR "/usr/include/wx-3.2")
+	set(WXWIDGETS_SETUP_DIR "/usr/lib/wx/include/${TARGET_LINUX_GUI}-unicode-static-3.2")
 endif()
-set(WXWIDGETS_INCLUDE_DIR "${CMAKE_PREFIX_PATH}/include/wx-${WX_VERSION}")
-set(WXWIDGETS_SETUP_DIR "${CMAKE_PREFIX_PATH}/lib/wx/include/${WX_COMPILER_TRIPLET}-msw-unicode-static-${WX_VERSION}")
 
 function(link_to_wxWidgets target)
-	set_windows_version_definitions(${target} ${TARGET_WINDOWS_VERSION})
-	if (TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_PTHREAD9X)
-		target_link_libraries(${target} INTERFACE pthread-9x)
-		target_compile_options(${target} INTERFACE -m32 -march=i486)
-	else()
-		target_link_libraries(${target} INTERFACE winpthread)
-	endif()
-
-	if (TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_WRAPPERS)
-		target_link_libraries(${target} INTERFACE corkel32 corusr cornt)
-	endif()
 	target_include_directories(${target} PUBLIC ${WXWIDGETS_SETUP_DIR} ${WXWIDGETS_INCLUDE_DIR})
-	target_compile_definitions(${target} PRIVATE
-		FD_SETSIZE=1024
-		__GNUWIN32__
-		STRICT
-		HAVE_W32API_H
-		__WXMSW__
-		__WINDOWS__
-		UNICODE
-		_UNICODE
-	)
-	set(WX_LIBS_TO_LINK 
-		wx_mswu_core-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-		wx_baseu-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-		wx_baseu_net-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-	)
-	if (${target} STREQUAL "malware_date_settings")
-		list(APPEND WX_LIBS_TO_LINK wx_mswu_adv-${WX_VERSION}-${WX_COMPILER_TRIPLET})
-	elseif (${target} STREQUAL "trivia_game")
-		list(APPEND WX_LIBS_TO_LINK
-		wx_mswu_stc-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-		wx_mswu_qa-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-		wx_mswu_ribbon-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-		wx_mswu_adv-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-	)
-	endif()
-	list(APPEND WX_LIBS_TO_LINK wxscintilla-${WX_VERSION}-${WX_COMPILER_TRIPLET})
-	target_link_libraries(${target} PRIVATE
-		${WX_LIBS_TO_LINK}
-		shell32
-		shlwapi
-		uuid
-		ole32
-		oleaut32
-		oleacc
-		jpeg
-		png
-		z
-		tiff
-		kernel32
-		atomic
-		mingw32
-		advapi32
-		mingwex
-		user32
-		expat
-		pcre2-16
-		uxtheme
-		glu32
-		regex
-		wsock32 comctl32 shell32 advapi32 gdi32 winmm comdlg32 version ws2_32 winhttp
-		rpcrt4
-		winspool
-	)
-	if (TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_MSVCRT40)
-		target_link_libraries(${target} PRIVATE
-			msvcrt40
+	if(WIN32)
+		set_windows_version_definitions(${target} ${TARGET_WINDOWS_VERSION})
+		if (TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_PTHREAD9X)
+			target_link_libraries(${target} INTERFACE pthread-9x)
+			target_compile_options(${target} INTERFACE -m32 -march=i486)
+		else()
+			target_link_libraries(${target} INTERFACE winpthread)
+		endif()
+
+		if (TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_WRAPPERS)
+			target_link_libraries(${target} INTERFACE corkel32 corusr cornt)
+		endif()
+		
+		target_compile_definitions(${target} PRIVATE
+			FD_SETSIZE=1024
+			__GNUWIN32__
+			STRICT
+			HAVE_W32API_H
+			__WXMSW__
+			__WINDOWS__
+			UNICODE
+			_UNICODE
 		)
+		set(WX_LIBS_TO_LINK 
+			wx_mswu_core-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+			wx_baseu-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+			wx_baseu_net-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+		)
+		if (${target} STREQUAL "malware_date_settings")
+			list(APPEND WX_LIBS_TO_LINK wx_mswu_adv-${WX_VERSION}-${WX_COMPILER_TRIPLET})
+		elseif (${target} STREQUAL "trivia_game")
+			list(APPEND WX_LIBS_TO_LINK
+			wx_mswu_stc-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+			wx_mswu_qa-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+			wx_mswu_ribbon-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+			wx_mswu_adv-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+		)
+		endif()
+		list(APPEND WX_LIBS_TO_LINK wxscintilla-${WX_VERSION}-${WX_COMPILER_TRIPLET})
+		target_link_libraries(${target} PRIVATE
+			${WX_LIBS_TO_LINK}
+			shell32
+			shlwapi
+			uuid
+			ole32
+			oleaut32
+			oleacc
+			jpeg
+			png
+			z
+			tiff
+			kernel32
+			atomic
+			mingw32
+			advapi32
+			mingwex
+			user32
+			expat
+			pcre2-16
+			uxtheme
+			glu32
+			regex
+			wsock32 comctl32 shell32 advapi32 gdi32 winmm comdlg32 version ws2_32 winhttp
+			rpcrt4
+			winspool
+		)
+		if (TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_MSVCRT40)
+			target_link_libraries(${target} PRIVATE
+				msvcrt40
+			)
+		endif()
+	else()
+		message(STATUS "The target GUI is ${TARGET_LINUX_GUI}. Setup dir is ${WXWIDGETS_SETUP_DIR}")
+		target_link_directories(${target} PRIVATE "/usr/local/lib")
+		target_compile_definitions(${target} PRIVATE
+			_FILE_OFFSET_BITS=64
+			__WXQT__
+			pthread
+		)
+
+		set(WX_LIBS_TO_LINK 
+			wx_${TARGET_LINUX_GUI}u_core-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+			wx_baseu-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+			wx_baseu_net-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+		)
+		if (${target} STREQUAL "malware_date_settings")
+			list(APPEND WX_LIBS_TO_LINK wx_${TARGET_LINUX_GUI}_adv-${WX_VERSION}-${WX_COMPILER_TRIPLET})
+		elseif (${target} STREQUAL "trivia_game")
+			list(APPEND WX_LIBS_TO_LINK
+				wx_${TARGET_LINUX_GUI}u_stc-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+				wx_${TARGET_LINUX_GUI}u_qa-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+				wx_${TARGET_LINUX_GUI}u_ribbon-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+				wx_${TARGET_LINUX_GUI}u_adv-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+		)
+		endif()
+		list(APPEND WX_LIBS_TO_LINK wxscintilla-${WX_VERSION}-${WX_COMPILER_TRIPLET})
 	endif()
 	target_link_options(${target} PRIVATE -static)
 endfunction()
 
 function(add_version_resource target)
-	set(INTERNAL_NAME "${target}.exe")
-	set(ORIGINAL_FILENAME "${target}.exe")
+	if(WIN32)
+		set(INTERNAL_NAME "${target}.exe")
+		set(ORIGINAL_FILENAME "${target}.exe")
 
-		if(NOT DEFINED VERSION_MAJOR)
-			set(VERSION_MAJOR 1)
-			set(VERSION_MINOR 0)
-			set(VERSION_PATCH 0)
-		endif()
+			if(NOT DEFINED VERSION_MAJOR)
+				set(VERSION_MAJOR 1)
+				set(VERSION_MINOR 0)
+				set(VERSION_PATCH 0)
+			endif()
 
-	set(VERSION_STRING
-		"${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
-	)
+		set(VERSION_STRING
+			"${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+		)
 
-	set(OUT_RC
-		${CMAKE_CURRENT_BINARY_DIR}/${target}_version.rc
-	)
+		set(OUT_RC
+			${CMAKE_CURRENT_BINARY_DIR}/${target}_version.rc
+		)
 
-	configure_file(
-		${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in
-		${OUT_RC}
-		@ONLY
-	)
+		configure_file(
+			${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in
+			${OUT_RC}
+			@ONLY
+		)
 
-	target_sources(${target} PRIVATE ${OUT_RC})
+		target_sources(${target} PRIVATE ${OUT_RC})
+	endif()
 endfunction()
 
 add_library(extras_config INTERFACE)
@@ -159,6 +209,7 @@ target_include_directories(extras_config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/i
 
 target_compile_options(extras_config INTERFACE
 	-fcf-protection=none
+	-fpermissive
 )
 
 target_compile_options(extras_config INTERFACE
@@ -172,7 +223,7 @@ target_link_options(extras_config INTERFACE
 )
 
 target_link_options(extras_config INTERFACE
-	-Wl,--subsystem,windows
+	$<$<PLATFORM_ID:Windows>:-Wl,--subsystem,windows>
 	-static
 )
 
@@ -201,7 +252,7 @@ add_subdirectory(src/interact_box_settings)
 add_subdirectory(src/malware_date_settings)
 add_subdirectory(src/message_box_process)
 add_subdirectory(src/trivia_game)
-if (NOT TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_WRAPPERS)
+if (WIN32 AND NOT TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_WRAPPERS)
 	add_subdirectory(src/tts_process)
 	list(APPEND TARGETS_FOR_EXPORT tts_process)
 endif()

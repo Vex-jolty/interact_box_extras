@@ -6,24 +6,29 @@ using namespace std;
 using namespace Structs;
 
 Json::Value jsonSettings;
-
+#if defined(WIN32)
 string filePath = "C:\\WINDOWS\\interact_box_config.json";
-#if WINVER > _WIN32_WINNT_NT4
+	#if WINVER > _WIN32_WINNT_NT4
 string workingDirectory = FileHelper::getWorkingDirectoryAsString();
-#else
+	#else
 string workingDirectory = FileHelper::getWorkingDirectory();
-#endif
+	#endif
 string interactBoxPath = "interact_box.exe";
+#else
+string filePath = "interact_box_config.json";
+string workingDirectory = FileHelper::getWorkingDirectory();
+string interactBoxPath = "interact_box";
+#endif
 
 bool isNumber(string input) {
-	for (char &c : input) {
+	for (char& c : input) {
 		if (!isdigit(c))
 			return false;
 	}
 	return true;
 }
 
-int MyFrame::getSettingPositionPriorityByType(const Json::Value &setting) {
+int MyFrame::getSettingPositionPriorityByType(const Json::Value& setting) {
 	if (setting.isString())
 		return 1;
 	if (setting.isInt64() || setting.isUInt64())
@@ -36,8 +41,8 @@ int MyFrame::getSettingPositionPriorityByType(const Json::Value &setting) {
 }
 
 int MyFrame::getSettingPositionPriorityByName(
-	const string &key,
-	const std::unordered_map<std::string, int> &namePriorities
+	const string& key,
+	const std::unordered_map<std::string, int>& namePriorities
 ) {
 	auto it = namePriorities.find(key);
 	if (it != namePriorities.end())
@@ -45,16 +50,16 @@ int MyFrame::getSettingPositionPriorityByName(
 	return namePriorities.size() + 1;
 }
 
-vector<pair<string, Json::Value>> MyFrame::sortSettings(Json::Value &initialSettings) {
+vector<pair<string, Json::Value>> MyFrame::sortSettings(Json::Value& initialSettings) {
 	unordered_map<std::string, int> namePriorities = {{"host", 1}, {"port", 2}};
 
 	std::vector<std::pair<std::string, Json::Value>> entries;
 
-	for (const auto &key : initialSettings.getMemberNames()) {
+	for (const auto& key : initialSettings.getMemberNames()) {
 		entries.emplace_back(key, initialSettings[key]);
 	}
 
-	std::sort(entries.begin(), entries.end(), [&namePriorities, this](const auto &a, const auto &b) {
+	std::sort(entries.begin(), entries.end(), [&namePriorities, this](const auto& a, const auto& b) {
 		int aNamePri = getSettingPositionPriorityByName(a.first, namePriorities);
 		int bNamePri = getSettingPositionPriorityByName(b.first, namePriorities);
 		if (aNamePri != bNamePri)
@@ -78,7 +83,7 @@ void saveSettings() { FileHelper::writeToFile(filePath, jsonSettings.toStyledStr
 bool askToSave() {
 	int response = wxMessageBox(
 		"Some settings were changed, but the changes were not saved. Would you like to save them now?",
-		"Interact Box XP Settings", wxICON_WARNING | wxYES_NO
+		"Interact Box Settings", wxICON_WARNING | wxYES_NO
 	);
 	return response == wxYES;
 }
@@ -87,12 +92,16 @@ void restartInteractBox() {
 	int response = wxMessageBox(
 		"In order to apply the settings, Interact Box must be restarted. Would you like to restart it "
 		"now?",
-		"Interact Box XP Settings", wxICON_WARNING | wxYES_NO
+		"Interact Box Settings", wxICON_WARNING | wxYES_NO
 	);
 	if (response != wxYES)
 		return;
 	ProcessHelper::killProcess(interactBoxPath);
+#ifdef WIN32
 	ShellExecuteA(NULL, "open", interactBoxPath.c_str(), NULL, workingDirectory.c_str(), SW_SHOW);
+#else
+	system(interactBoxPath.c_str());
+#endif
 }
 
 void handleError(string errorMessage) {
@@ -100,7 +109,7 @@ void handleError(string errorMessage) {
 }
 
 bool InteractBoxSettings::OnInit() {
-	MyFrame *frame = new MyFrame();
+	MyFrame* frame = new MyFrame();
 	SetTopWindow(frame);
 	frame->Show(true);
 	return true;
@@ -110,12 +119,19 @@ int InteractBoxSettings::OnExit() { return 0; }
 
 MyFrame::MyFrame()
 		: wxFrame(NULL, wxID_ANY, "Interact Box Settings", wxDefaultPosition, wxSize(400, 600)) {
+#ifdef WIN32
 	HICON iconHandle = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON1));
 	wxIcon icon;
 	icon.CreateFromHICON(iconHandle);
 	SetIcon(icon);
 	DestroyIcon(iconHandle);
-	vector<ArrayEditWidget *> arraySettings;
+#else
+	wxIcon icon;
+	wxMemoryInputStream stream(icon_config_icon_win98_ico, icon_config_icon_win98_ico_len);
+	wxImage image(stream, wxBITMAP_TYPE_PNG);
+	icon.CopyFromBitmap(wxBitmap(image));
+#endif
+	vector<ArrayEditWidget*> arraySettings;
 	auto parentPanel = new wxPanel(this, wxID_ANY);
 	auto parentSizer = new wxBoxSizer(wxVERTICAL);
 
@@ -131,7 +147,7 @@ MyFrame::MyFrame()
 			throw InteractBoxException(ErrorCodes::CannotReadFile, settingsFile);
 		}
 		_sortedSettings = sortSettings(jsonSettings);
-	} catch (InteractBoxException &e) {
+	} catch (InteractBoxException& e) {
 		handleError(e.what());
 		abort();
 	}
@@ -142,8 +158,8 @@ MyFrame::MyFrame()
 	auto buttonsSizer = new wxBoxSizer(wxHORIZONTAL);
 	auto buttonsPanel = new wxPanel(parentPanel, wxID_ANY);
 
-	wxButton *saveButton = new wxButton(buttonsPanel, SAVE_BUTTON, "Save");
-	wxButton *closeButton = new wxButton(buttonsPanel, CLOSE_BUTTON, "Close");
+	wxButton* saveButton = new wxButton(buttonsPanel, SAVE_BUTTON, "Save");
+	wxButton* closeButton = new wxButton(buttonsPanel, CLOSE_BUTTON, "Close");
 	buttonsSizer->Add(saveButton, 1, wxALL, 5);
 	buttonsSizer->Add(closeButton, 1, wxALL, 5);
 	buttonsPanel->SetSizerAndFit(buttonsSizer);
@@ -155,15 +171,15 @@ MyFrame::MyFrame()
 	parentPanel->SetSizer(parentSizer);
 	parentSizer->Fit(parentPanel);
 	parentPanel->Show(true);
-	wxMenu *menuFile = new wxMenu;
+	wxMenu* menuFile = new wxMenu;
 	menuFile->Append(ID_SAVE, "&Save...\tCtrl-S", "Save the current settings");
 	menuFile->AppendSeparator();
 	menuFile->Append(wxID_EXIT);
 
-	wxMenu *menuHelp = new wxMenu;
+	wxMenu* menuHelp = new wxMenu;
 	menuHelp->Append(wxID_ABOUT);
 
-	wxMenuBar *menuBar = new wxMenuBar;
+	wxMenuBar* menuBar = new wxMenuBar;
 	menuBar->Append(menuFile, "&File");
 	menuBar->Append(menuHelp, "&Help");
 
@@ -178,7 +194,7 @@ MyFrame::MyFrame()
 	Bind(wxEVT_CLOSE_WINDOW, &MyFrame::OnClose, this);
 }
 
-void MyFrame::parseSettings(wxPanel *panel, wxBoxSizer *sizer) {
+void MyFrame::parseSettings(wxPanel* panel, wxBoxSizer* sizer) {
 	int idCounter = 50;
 
 	// Placing the autorun toggle widget on top of all the others for ease of access
@@ -230,30 +246,30 @@ void MyFrame::parseSettings(wxPanel *panel, wxBoxSizer *sizer) {
 	}
 }
 
-void MyFrame::OnExit(wxCommandEvent &event) { Close(false); }
+void MyFrame::OnExit(wxCommandEvent& event) { Close(false); }
 
-void MyFrame::OnClose(wxCloseEvent &event) {
+void MyFrame::OnClose(wxCloseEvent& event) {
 	event.SetCanVeto(true);
 	event.Veto(true);
 	try {
 		promptUserIfModified();
-	} catch (exception &e) {
+	} catch (exception& e) {
 		handleError(e.what());
 	}
 	Destroy();
 }
 
-void MyFrame::OnSave(wxCommandEvent &event) {
+void MyFrame::OnSave(wxCommandEvent& event) {
 	try {
 		saveSettings();
-	} catch (exception &e) {
+	} catch (exception& e) {
 		handleError(e.what());
 	}
 	SetStatusText("Saved!");
 	_hasSaved = true;
 }
 
-void MyFrame::OnChange(wxCommandEvent &event) {
+void MyFrame::OnChange(wxCommandEvent& event) {
 	_isModified = true;
 	SetStatusText("Some settings have been changed!");
 }

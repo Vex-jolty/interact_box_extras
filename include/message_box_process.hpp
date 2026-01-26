@@ -7,21 +7,40 @@
 #include <wx/wx.h>
 #include <wx/log.h>
 #include <wx/msgdlg.h>
+#ifdef __linux__
+	#include <wx/mstream.h>
+#endif
 
+#ifdef WIN32
 std::vector<std::wstring> parseButtons(std::wstring buttonsString);
+#else
+std::vector<std::string> parseButtons(std::string buttonsString);
+#endif
 
 struct DefaultButtonOption {
-	std::vector<std::wstring> validInputs;
-	std::vector<std::wstring> resultingButtons;
+#ifdef WIN32
+		std::vector<std::wstring> validInputs;
+		std::vector<std::wstring> resultingButtons;
+#else
+		std::vector<std::string> validInputs;
+		std::vector<std::string> resultingButtons;
+#endif
 };
 
 class CustomBox : public wxMessageDialog {
 	public:
 		CustomBox(
+#ifdef WIN32
 			std::wstring msg,
 			std::wstring title,
 			long typeCode,
 			std::vector<std::wstring> buttons
+#else
+			std::string msg,
+			std::string title,
+			long typeCode,
+			std::vector<std::string> buttons
+#endif
 		)
 				: wxMessageDialog(
 						NULL,
@@ -38,7 +57,11 @@ class CustomBox : public wxMessageDialog {
 
 	private:
 		void _handleButtons();
+#ifdef WIN32
 		std::vector<std::wstring> _buttons;
+#else
+		std::vector<std::string> _buttons;
+#endif
 };
 
 class MessageBoxApp : public wxApp {
