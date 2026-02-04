@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Interact Box Settings
+Exec=interact_box_settings
+Icon=interact_box_settings
+Terminal=false
+Categories=Utility;

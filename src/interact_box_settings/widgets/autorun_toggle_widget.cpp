@@ -97,6 +97,10 @@ AutorunToggleWidget::AutorunToggleWidget(wxWindow* parent, wxWindowID id) {
 }
 
 // TODO
+bool AutorunToggleWidget::getAutorunStatus() {
+	return false;
+}
+
 bool AutorunToggleWidget::toggleAutorun(bool autorunIsEnabled) {
 	return false;
 }

@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+#include <json/value.h>
 
 namespace Structs {
 	enum SettingType {

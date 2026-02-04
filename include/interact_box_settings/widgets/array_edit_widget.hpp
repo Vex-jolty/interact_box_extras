@@ -1,6 +1,5 @@
 #pragma once
 #include "widgets.hpp"
-#include "../structs/setting.hpp"
 
 class ArrayEditWidget : public wxTextCtrl {
 	public:

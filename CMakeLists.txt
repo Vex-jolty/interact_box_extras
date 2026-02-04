@@ -67,9 +67,6 @@ if(WIN32)
 	endif()
 	set(WXWIDGETS_INCLUDE_DIR "${CMAKE_PREFIX_PATH}/include/wx-${WX_VERSION}")
 	set(WXWIDGETS_SETUP_DIR "${CMAKE_PREFIX_PATH}/lib/wx/include/${WX_COMPILER_TRIPLET}-msw-unicode-static-${WX_VERSION}")
-else()
-	set(WXWIDGETS_INCLUDE_DIR "/usr/include/wx-3.2")
-	set(WXWIDGETS_SETUP_DIR "/usr/lib/wx/include/${TARGET_LINUX_GUI}-unicode-static-3.2")
 endif()
 
 function(link_to_wxWidgets target)
@@ -146,32 +143,29 @@ function(link_to_wxWidgets target)
 			)
 		endif()
 	else()
-		message(STATUS "The target GUI is ${TARGET_LINUX_GUI}. Setup dir is ${WXWIDGETS_SETUP_DIR}")
-		target_link_directories(${target} PRIVATE "/usr/local/lib")
-		target_compile_definitions(${target} PRIVATE
-			_FILE_OFFSET_BITS=64
-			__WXQT__
-			pthread
+		execute_process(
+			COMMAND wx-config --cxxflags --toolkit=${TARGET_LINUX_GUI} --static=yes
+			OUTPUT_VARIABLE WX_CXX_FLAGS
+			OUTPUT_STRIP_TRAILING_WHITESPACE
 		)
 
+		execute_process(
+			COMMAND wx-config --libs --toolkit=${TARGET_LINUX_GUI} --static=yes
+			OUTPUT_VARIABLE WX_LD_FLAGS
+			OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+
+		separate_arguments(WX_LD_FLAGS)
+
+		set(WX_VERSION "3.3")
 		set(WX_LIBS_TO_LINK 
-			wx_${TARGET_LINUX_GUI}u_core-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-			wx_baseu-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-			wx_baseu_net-${WX_VERSION}-${WX_COMPILER_TRIPLET}
+			${WX_LD_FLAGS}
 		)
-		if (${target} STREQUAL "malware_date_settings")
-			list(APPEND WX_LIBS_TO_LINK wx_${TARGET_LINUX_GUI}_adv-${WX_VERSION}-${WX_COMPILER_TRIPLET})
-		elseif (${target} STREQUAL "trivia_game")
-			list(APPEND WX_LIBS_TO_LINK
-				wx_${TARGET_LINUX_GUI}u_stc-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-				wx_${TARGET_LINUX_GUI}u_qa-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-				wx_${TARGET_LINUX_GUI}u_ribbon-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-				wx_${TARGET_LINUX_GUI}u_adv-${WX_VERSION}-${WX_COMPILER_TRIPLET}
-		)
-		endif()
-		list(APPEND WX_LIBS_TO_LINK wxscintilla-${WX_VERSION}-${WX_COMPILER_TRIPLET})
 	endif()
-	target_link_options(${target} PRIVATE -static)
+	separate_arguments(WX_CXX_FLAGS)
+	separate_arguments(WX_LIBS_TO_LINK)
+	target_compile_options(${target} PRIVATE ${WX_CXX_FLAGS})
+	target_link_libraries(${target} PRIVATE ${WX_LIBS_TO_LINK})
 endfunction()
 
 function(add_version_resource target)
@@ -224,10 +218,9 @@ target_link_options(extras_config INTERFACE
 
 target_link_options(extras_config INTERFACE
 	$<$<PLATFORM_ID:Windows>:-Wl,--subsystem,windows>
-	-static
 )
 
-target_link_libraries(extras_config INTERFACE platform_config)
+#target_link_libraries(extras_config INTERFACE platform_config)
 
 execute_process(
 	COMMAND ${WX_CONFIG} --cxxflags

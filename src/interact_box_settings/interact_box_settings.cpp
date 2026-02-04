@@ -15,7 +15,7 @@ string workingDirectory = FileHelper::getWorkingDirectory();
 	#endif
 string interactBoxPath = "interact_box.exe";
 #else
-string filePath = "interact_box_config.json";
+string filePath = "/etc/interact_box/interact_box_config.json";
 string workingDirectory = FileHelper::getWorkingDirectory();
 string interactBoxPath = "interact_box";
 #endif
@@ -105,7 +105,7 @@ void restartInteractBox() {
 }
 
 void handleError(string errorMessage) {
-	wxMessageBox(errorMessage, "INTERACT BOX XP SETTINGS ERROR", wxICON_ERROR);
+	wxMessageBox(errorMessage, "INTERACT BOX SETTINGS ERROR", wxICON_ERROR);
 }
 
 bool InteractBoxSettings::OnInit() {
@@ -127,8 +127,9 @@ MyFrame::MyFrame()
 	DestroyIcon(iconHandle);
 #else
 	wxIcon icon;
-	wxMemoryInputStream stream(icon_config_icon_win98_ico, icon_config_icon_win98_ico_len);
+	wxMemoryInputStream stream(config_icon_linux_ico, config_icon_linux_ico_len);
 	wxImage image(stream, wxBITMAP_TYPE_PNG);
+	image.AddHandler(new wxPNGHandler);
 	icon.CopyFromBitmap(wxBitmap(image));
 #endif
 	vector<ArrayEditWidget*> arraySettings;
