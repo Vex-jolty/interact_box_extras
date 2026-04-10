@@ -1,6 +1,7 @@
 #pragma once
 #include "widgets.hpp"
 #include "../structs/setting.hpp"
+#include "file_helper.hpp"
 
 class AutorunToggleWidget : public wxCheckBox {
 	public:
