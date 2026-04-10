@@ -220,7 +220,9 @@ target_link_options(extras_config INTERFACE
 	$<$<PLATFORM_ID:Windows>:-Wl,--subsystem,windows>
 )
 
-#target_link_libraries(extras_config INTERFACE platform_config)
+if(WIN32)
+	set_windows_version_definitions(extras_config ${TARGET_WINDOWS_VERSION})
+endif()
 
 execute_process(
 	COMMAND ${WX_CONFIG} --cxxflags

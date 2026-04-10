@@ -55,7 +55,7 @@ class DirectoryEditWidget : public wxPanel {
 		void onButtonClick(wxCommandEvent& event) {
 			int result = _dirDialog->ShowModal();
 			if (result == wxID_OK) {
-#if WINVER > _WIN32_WINNT_NT4
+#if defined(linux) || WINVER > _WIN32_WINNT_NT4
 				std::string path = _dirDialog->GetPath().utf8_string();
 #else
 				std::string path = _dirDialog->GetPath().ToStdString();
