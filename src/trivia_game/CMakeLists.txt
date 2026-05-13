@@ -31,9 +31,9 @@ add_executable(
 	
 )
 
-link_to_wxWidgets(trivia_game)
-
 target_link_libraries(trivia_game PRIVATE extras_config)
+
+link_to_wxWidgets(trivia_game)
 
 target_link_libraries(trivia_game PRIVATE file_helper json_helper process_helper string_helper errors)
 

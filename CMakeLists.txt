@@ -69,9 +69,12 @@ if(WIN32)
 	set(WXWIDGETS_SETUP_DIR "${CMAKE_PREFIX_PATH}/lib/wx/include/${WX_COMPILER_TRIPLET}-msw-unicode-static-${WX_VERSION}")
 endif()
 
+add_library(mingw_64_compat STATIC src/compat/mingw_64_compat.cpp)
+
 function(link_to_wxWidgets target)
-	target_include_directories(${target} PUBLIC ${WXWIDGETS_SETUP_DIR} ${WXWIDGETS_INCLUDE_DIR})
 	if(WIN32)
+		target_include_directories(${target} PRIVATE ${WXWIDGETS_SETUP_DIR} ${WXWIDGETS_INCLUDE_DIR})
+		message(STATUS "Setup dir ${WXWIDGETS_SETUP_DIR}")
 		set_windows_version_definitions(${target} ${TARGET_WINDOWS_VERSION})
 		if (TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_PTHREAD9X)
 			target_link_libraries(${target} INTERFACE pthread-9x)
@@ -120,6 +123,9 @@ function(link_to_wxWidgets target)
 			oleacc
 			jpeg
 			png
+			# IMPORTANT: there needs to be a static libz.a for this to work!
+			# Because of this, a custom PKGBUILD might be necessary
+			# I'm considering just creating a mingw-w64-zlib-static package for the AUR to account for this
 			z
 			tiff
 			kernel32
@@ -140,6 +146,10 @@ function(link_to_wxWidgets target)
 		if (TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_MSVCRT40)
 			target_link_libraries(${target} PRIVATE
 				msvcrt40
+			)
+		else()
+			target_link_libraries(${target} PRIVATE
+				msvcrt
 			)
 		endif()
 	else()
@@ -220,7 +230,27 @@ target_link_options(extras_config INTERFACE
 	$<$<PLATFORM_ID:Windows>:-Wl,--subsystem,windows>
 )
 
+target_link_libraries(extras_config INTERFACE mingw_64_compat)
+
 if(WIN32)
+	# For some reason, not including static versions of libgcc and libstdc++ suddenly started breaking wxWidget apps on runtime
+	# This check should be compiler agnostic
+	target_link_options(extras_config INTERFACE
+		-static
+		$<$<CXX_COMPILER_ID:GNU>:
+			-static-libgcc
+			-static-libstdc++
+		>
+		$<$<CXX_COMPILER_ID:Clang,AppleClang>:
+			-static-libstdc++
+		>
+	)
+
+	if(MSVC)
+		set_property(TARGET extras_config PROPERTY
+			MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
+		)
+	endif()
 	set_windows_version_definitions(extras_config ${TARGET_WINDOWS_VERSION})
 endif()
 
