@@ -170,7 +170,9 @@ function(link_to_wxWidgets target)
 		set(WX_VERSION "3.3")
 		set(WX_LIBS_TO_LINK 
 			${WX_LD_FLAGS}
+			X11
 		)
+		message(STATUS "LD flags: ${WX_LD_FLAGS}")
 	endif()
 	separate_arguments(WX_CXX_FLAGS)
 	separate_arguments(WX_LIBS_TO_LINK)
