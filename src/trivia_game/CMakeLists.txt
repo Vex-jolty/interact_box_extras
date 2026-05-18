@@ -28,7 +28,6 @@ endif()
 
 add_executable(
 	trivia_game ${TARGET_FILES}
-	
 )
 
 target_link_libraries(trivia_game PRIVATE extras_config)
