@@ -1,4 +1,4 @@
-project(trivia_game VERSION 1.0.0)
+project(trivia_game VERSION 1.2.1)
 
 set(MAIN_QUESTIONS_FILE questions.json)
 set(FALLBACK_QUESTIONS_FILE questions.example.json)
@@ -31,7 +31,7 @@ if (WIN32)
 	list(APPEND TARGET_FILES ${OUT_RESOURCES_RC})
 else()
 	embed_file_as_header(${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/${QUESTIONS_FILE} questions questions_json GENERATED_QUESTIONS_H)
-	embed_file_as_header(${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/${ICON_FILE} icon icon_${PROJECT_NAME}_icon_ico GENERATED_ICON_H)
+	embed_file_as_header(${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/${ICON_FILE} icon icon_${PROJECT_NAME}_ico GENERATED_ICON_H)
 	list(APPEND TARGET_FILES ${GENERATED_QUESTIONS_H} ${GENERATED_ICON_H})
 endif()
 
@@ -47,12 +47,10 @@ add_executable(
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE extras_config)
+target_link_libraries(${PROJECT_NAME} PRIVATE platform_config extras_config)
 
 link_to_wxWidgets(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE file_helper json_helper process_helper string_helper errors)
 
-if (WIN32)
-	add_version_resource(${PROJECT_NAME})
-endif()
+add_version_resource(${PROJECT_NAME})

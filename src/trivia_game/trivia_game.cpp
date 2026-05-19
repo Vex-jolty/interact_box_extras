@@ -143,7 +143,7 @@ MainAppFrame::MainAppFrame()
 	DestroyIcon(iconHandle);
 #else
 	wxIcon icon;
-	wxMemoryInputStream stream(icon_trivia_game_icon_ico, icon_trivia_game_icon_ico_len);
+	wxMemoryInputStream stream(icon_trivia_game_ico, icon_trivia_game_ico_len);
 	wxImage image(stream, wxBITMAP_TYPE_PNG);
 	icon.CopyFromBitmap(wxBitmap(image));
 #endif

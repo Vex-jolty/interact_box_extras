@@ -1,7 +1,7 @@
 #pragma once
 #include "processes.hpp"
 #include "string_helper.hpp"
-#include "message_box_process/resources.h"
+#include "message_box_process_include/resources.h"
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <wx/wx.h>

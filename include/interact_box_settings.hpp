@@ -6,7 +6,7 @@
 	#include <wx/mstream.h>
 #endif
 #include "interact_box_settings/widgets/widgets_exported.hpp"
-#include "interact_box_settings/resources.h"
+#include "interact_box_settings_include/resources.h"
 #include <json/json_features.h>
 #include <variant>
 

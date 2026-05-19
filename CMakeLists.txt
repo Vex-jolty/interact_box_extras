@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(interact_box_extras VERSION 1.0.0)
+project(interact_box_extras VERSION 1.2.1)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -183,14 +183,8 @@ function(add_version_resource target)
 		set(INTERNAL_NAME "${target}.exe")
 		set(ORIGINAL_FILENAME "${target}.exe")
 
-			if(NOT DEFINED VERSION_MAJOR)
-				set(VERSION_MAJOR 1)
-				set(VERSION_MINOR 0)
-				set(VERSION_PATCH 0)
-			endif()
-
-		set(VERSION_STRING
-			"${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+		string(REPLACE
+			"." "," VERSION_STRING ${CMAKE_PROJECT_VERSION}
 		)
 
 		set(OUT_RC

@@ -261,7 +261,7 @@ bool MessageBoxApp::OnInit() {
 	icon.CreateFromHICON(iconHandle);
 #else
 	wxIcon icon;
-	wxMemoryInputStream stream(icon_linux_ico, icon_linux_ico_len);
+	wxMemoryInputStream stream(icon_message_box_process_ico, icon_message_box_process_ico_len);
 	wxImage image(stream, wxBITMAP_TYPE_PNG);
 	icon.CopyFromBitmap(wxBitmap(image));
 #endif

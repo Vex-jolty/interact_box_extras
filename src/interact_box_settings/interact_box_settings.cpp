@@ -127,7 +127,7 @@ MyFrame::MyFrame()
 	DestroyIcon(iconHandle);
 #else
 	wxIcon icon;
-	wxMemoryInputStream stream(config_icon_linux_ico, config_icon_linux_ico_len);
+	wxMemoryInputStream stream(icon_interact_box_settings_ico, icon_interact_box_settings_ico_len);
 	wxImage image(stream, wxBITMAP_TYPE_PNG);
 	image.AddHandler(new wxPNGHandler);
 	icon.CopyFromBitmap(wxBitmap(image));

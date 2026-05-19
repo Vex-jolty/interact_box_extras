@@ -1,4 +1,4 @@
-project(tts_process VERSION 1.0.0)
+project(tts_process VERSION 1.2.1)
 
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/banned_words.txt)
 	set(BANNED_WORDS_FILE banned_words.txt)
