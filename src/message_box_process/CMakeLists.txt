@@ -1,4 +1,4 @@
-project(message_box_process VERSION 1.2.1)
+project(message_box_process VERSION 1.2.2)
 
 find_package(Boost REQUIRED CONFIG)
 
