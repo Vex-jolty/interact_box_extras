@@ -2,7 +2,7 @@
 
 #include "processes.hpp"
 #include "exported.hpp"
-#include "tts_process/resources.h"
+#include "tts_process_include/resources.h"
 #ifdef WIN32
 	#include <sapi.h>
 	#include <sphelper.h>

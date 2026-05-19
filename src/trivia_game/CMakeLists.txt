@@ -37,7 +37,7 @@ endif()
 
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/../../include/${PROJECT_NAME}/resources.h.in
-	${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/resources.h
+	${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_include/resources.h
 	@ONLY
 )
 

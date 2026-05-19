@@ -9,8 +9,6 @@ set(INPUT_FILE "${CMAKE_ARGV3}")
 set(OUTPUT_FILE "${CMAKE_ARGV4}")
 set(VAR_NAME "${CMAKE_ARGV5}")
 
-message(STATUS "INPUT_FILE ${INPUT_FILE} OUTPUT_FILE ${OUTPUT_FILE} VAR_NAME ${VAR_NAME}")
-
 file(READ "${INPUT_FILE}" HEX_CONTENT HEX)
 
 # This ensures the output is valid hex

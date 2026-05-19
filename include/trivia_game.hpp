@@ -5,7 +5,7 @@
 #include "json_helper.hpp"
 #include "process_helper.hpp"
 #include "index_helper.hpp"
-#include "trivia_game/resources.h"
+#include "trivia_game_include/resources.h"
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <wx/wx.h>

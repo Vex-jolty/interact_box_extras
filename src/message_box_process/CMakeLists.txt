@@ -1,19 +1,19 @@
-project(message_box_creator VERSION 1.0.0)
+project(message_box_process VERSION 1.0.0)
 
 find_package(Boost REQUIRED CONFIG)
 
 add_executable(
-	message_box_process message_box_process.cpp
+	${PROJECT_NAME} message_box_process.cpp
 	resources.rc
 )
 
-target_link_libraries(message_box_process PRIVATE extras_config)
+target_link_libraries(${PROJECT_NAME} PRIVATE extras_config)
 
-link_to_wxWidgets(message_box_process)
+link_to_wxWidgets(${PROJECT_NAME})
 
-target_link_libraries(message_box_process
+target_link_libraries(${PROJECT_NAME}
 	PRIVATE
 	string_helper
 )
 
-add_version_resource(message_box_process)
+add_version_resource(${PROJECT_NAME})

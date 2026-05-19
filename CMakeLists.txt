@@ -74,7 +74,6 @@ add_library(mingw_64_compat STATIC src/compat/mingw_64_compat.cpp)
 function(link_to_wxWidgets target)
 	if(WIN32)
 		target_include_directories(${target} PRIVATE ${WXWIDGETS_SETUP_DIR} ${WXWIDGETS_INCLUDE_DIR})
-		message(STATUS "Setup dir ${WXWIDGETS_SETUP_DIR}")
 		set_windows_version_definitions(${target} ${TARGET_WINDOWS_VERSION})
 		if (TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_PTHREAD9X)
 			target_link_libraries(${target} INTERFACE pthread-9x)
@@ -211,7 +210,6 @@ endfunction()
 function(embed_file_as_header target input_file output_header variable_name output_var)
 	get_filename_component(ABS_INPUT_FILE "${input_file}" ABSOLUTE)
 	set(OUT_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${output_header}.h")
-	message(STATUS "Absolute path: ${ABS_INPUT_FILE}")
 	
 	add_custom_command(
 		OUTPUT ${OUT_HEADER}
@@ -220,7 +218,6 @@ function(embed_file_as_header target input_file output_header variable_name outp
 						"${ABS_INPUT_FILE}" "${OUT_HEADER}" "${variable_name}"
 		COMMENT "Embedding asset: ${input_file} -> ${variable_name}"
 	)
-	message(STATUS "Created ${OUT_HEADER} from ${input_file}")
 	set_property(SOURCE ${target} APPEND PROPERTY OBJECT_DEPENDS "${OUT_HEADER}")
 	set(${output_var} ${OUT_HEADER} PARENT_SCOPE)
 endfunction()
