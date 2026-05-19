@@ -1,7 +1,7 @@
-project(InteractBoxSettings VERSION 1.0.0)
+project(interact_box_settings VERSION 1.0.0)
 
 add_executable(
-	interact_box_settings interact_box_settings.cpp
+	${PROJECT_NAME} ${PROJECT_NAME}.cpp
 	widgets/array_edit_widget.cpp
 	widgets/autorun_toggle_widget.cpp
 	widgets/bool_edit_widget.cpp
@@ -11,10 +11,10 @@ add_executable(
 	resources.rc
 )
 
-set_windows_version_definitions(interact_box_settings ${TARGET_WINDOWS_VERSION})
+set_windows_version_definitions(${PROJECT_NAME} ${TARGET_WINDOWS_VERSION})
 
 target_link_libraries(
-	interact_box_settings PRIVATE
+	${PROJECT_NAME} PRIVATE
 	extras_config
 	errors
 	string_helper
@@ -24,6 +24,6 @@ target_link_libraries(
 	logging_level
 )
 
-link_to_wxWidgets(interact_box_settings)
+link_to_wxWidgets(${PROJECT_NAME})
 
-add_version_resource(interact_box_settings)
+add_version_resource(${PROJECT_NAME})

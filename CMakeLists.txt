@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(InteractBoxExtras VERSION 1.0.0)
+project(interact_box_extras VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -308,8 +308,8 @@ install(
 
 install(
 	EXPORT InteractBoxExtrasTargets
-	NAMESPACE InteractBoxExtras::
-	DESTINATION lib/cmake/InteractBoxExtras
+	NAMESPACE ${PROJECT_NAME}::
+	DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
 install(
@@ -322,10 +322,10 @@ include(CMakePackageConfigHelpers)
 configure_package_config_file(
 	cmake/InteractBoxExtrasConfig.cmake.in
 	${CMAKE_CURRENT_BINARY_DIR}/InteractBoxExtrasConfig.cmake
-	INSTALL_DESTINATION lib/cmake/InteractBoxExtras
+	INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
 install(
 	FILES ${CMAKE_CURRENT_BINARY_DIR}/InteractBoxExtrasConfig.cmake
-	DESTINATION lib/cmake/InteractBoxExtras
+	DESTINATION lib/cmake/${PROJECT_NAME}
 )

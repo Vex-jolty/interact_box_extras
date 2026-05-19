@@ -1,4 +1,4 @@
-project(MessageBoxCreator VERSION 1.0.0)
+project(message_box_creator VERSION 1.0.0)
 
 find_package(Boost REQUIRED CONFIG)
 
