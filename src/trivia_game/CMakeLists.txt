@@ -47,7 +47,11 @@ add_executable(
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE platform_config extras_config)
+if(WIN32)
+  target_link_libraries(${PROJECT_NAME} PRIVATE platform_config)
+endif()
+
+target_link_libraries(${PROJECT_NAME} PRIVATE extras_config)
 
 link_to_wxWidgets(${PROJECT_NAME})
 
