@@ -1,1 +1,0 @@
-#define IDR_BANNED_WORDS 101

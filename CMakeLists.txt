@@ -172,7 +172,6 @@ function(link_to_wxWidgets target)
 			${WX_LD_FLAGS}
 			X11
 		)
-		message(STATUS "LD flags: ${WX_LD_FLAGS}")
 	endif()
 	separate_arguments(WX_CXX_FLAGS)
 	separate_arguments(WX_LIBS_TO_LINK)
@@ -207,6 +206,23 @@ function(add_version_resource target)
 
 		target_sources(${target} PRIVATE ${OUT_RC})
 	endif()
+endfunction()
+
+function(embed_file_as_header target input_file output_header variable_name output_var)
+	get_filename_component(ABS_INPUT_FILE "${input_file}" ABSOLUTE)
+	set(OUT_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${output_header}.h")
+	message(STATUS "Absolute path: ${ABS_INPUT_FILE}")
+	
+	add_custom_command(
+		OUTPUT ${OUT_HEADER}
+		DEPENDS ${ABS_INPUT_FILE}
+		COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/cmake/file_to_hex.cmake"
+						"${ABS_INPUT_FILE}" "${OUT_HEADER}" "${variable_name}"
+		COMMENT "Embedding asset: ${input_file} -> ${variable_name}"
+	)
+	message(STATUS "Created ${OUT_HEADER} from ${input_file}")
+	set_property(SOURCE ${target} APPEND PROPERTY OBJECT_DEPENDS "${OUT_HEADER}")
+	set(${output_var} ${OUT_HEADER} PARENT_SCOPE)
 endfunction()
 
 add_library(extras_config INTERFACE)
@@ -279,7 +295,7 @@ add_subdirectory(src/interact_box_settings)
 add_subdirectory(src/malware_date_settings)
 add_subdirectory(src/message_box_process)
 add_subdirectory(src/trivia_game)
-if (WIN32 AND NOT TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_WRAPPERS)
+if (LINUX OR (WIN32 AND NOT TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_WRAPPERS))
 	add_subdirectory(src/tts_process)
 	list(APPEND TARGETS_FOR_EXPORT tts_process)
 endif()

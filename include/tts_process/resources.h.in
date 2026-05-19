@@ -1,0 +1,4 @@
+#define IDR_BANNED_WORDS 101
+#ifdef __linux__
+	#include "@GENERATED_BANNED_WORDS_H@"
+#endif

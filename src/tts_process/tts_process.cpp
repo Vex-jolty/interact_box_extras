@@ -2,6 +2,7 @@
 
 using namespace std;
 
+#ifdef WIN32
 void loadFileInResource(int name, DWORD& size, const char*& data) {
 	HMODULE handle = ::GetModuleHandle(NULL);
 	if (!handle)
@@ -11,6 +12,14 @@ void loadFileInResource(int name, DWORD& size, const char*& data) {
 	size = SizeofResource(handle, rc);
 	data = static_cast<const char*>(::LockResource(rcData));
 }
+#else
+vector<string> loadBannedWords() {
+	string baseFileData = string(reinterpret_cast<const char*>(banned_words_txt), banned_words_txt_len);
+	vector<string> result;
+	boost::split(result, baseFileData, boost::algorithm::is_any_of("\n"));
+	return result;
+}
+#endif
 
 void replaceBannedWords(string& input, vector<string> bannedWords, string replacement) {
 	// Using a magic word to prevent it from partially redacting the word "raccoon"
@@ -22,6 +31,7 @@ void replaceBannedWords(string& input, vector<string> bannedWords, string replac
 	boost::ireplace_all(input, magicWord, "raccoon");
 }
 
+#ifdef WIN32
 int main(int argc, char const* argv[]) {
 	const char* bannedWordsCharPointer;
 	DWORD size = 0;
@@ -93,3 +103,16 @@ int main(int argc, char const* argv[]) {
 	::CoUninitialize();
 	return 0;
 }
+
+#else
+int main(int argc, char const* argv[]) {
+	if (argc < 2)
+		return 1;
+	string input = argv[1];
+	vector<string> bannedWords = loadBannedWords();
+	replaceBannedWords(input, bannedWords, " [REDACTED] ");
+	if (system("which spd-say") != 0) throw InteractBoxException(ErrorCodes::NoSuchFiles, "spd-say");
+	system(("spd-say " + input).c_str());
+	return 0;
+}
+#endif

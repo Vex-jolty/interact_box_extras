@@ -1,0 +1,9 @@
+#pragma once
+
+#define IDR_JSON 101
+#define IDI_ICON1 102
+
+#ifdef __linux__
+	#include "@GENERATED_QUESTIONS_H@"
+	#include "@GENERATED_ICON_H@"
+#endif
