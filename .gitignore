@@ -2,6 +2,7 @@ build/
 .vscode/
 banned_words.txt
 *.png
+!config_icon-linux.png
 *.bmp
 questions.json
 questions.h

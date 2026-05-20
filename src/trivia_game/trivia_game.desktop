@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Interact Box Trivia Game
+Exec=interact-box-trivia-game
+Icon=trivia_game
+Terminal=false
+Categories=Utility;

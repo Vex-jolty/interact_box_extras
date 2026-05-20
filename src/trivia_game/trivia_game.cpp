@@ -425,6 +425,6 @@ void ProcessKillerThread::findAndKill(ProcessNameAndFileName procInfo) {
 	);
 #else
 	string workingDir = FileHelper::getWorkingDirectory();
-	system((workingDir + "/message_box_process" + " " + shellArgs).c_str());
+	system((workingDir + "/interact-box-message-box" + " " + shellArgs).c_str());
 #endif
 }
