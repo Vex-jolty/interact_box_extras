@@ -15,9 +15,9 @@ string workingDirectory = FileHelper::getWorkingDirectory();
 	#endif
 string interactBoxPath = "interact_box.exe";
 #else
-string filePath = "/etc/interact_box/interact_box_config.json";
+string filePath = "/etc/interact-box/interact_box_config.json";
 string workingDirectory = FileHelper::getWorkingDirectory();
-string interactBoxPath = "interact_box";
+string interactBoxPath = "interact-box";
 #endif
 
 bool isNumber(string input) {
