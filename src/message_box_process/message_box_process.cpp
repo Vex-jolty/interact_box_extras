@@ -260,9 +260,10 @@ bool MessageBoxApp::OnInit() {
 	wxIcon icon;
 	icon.CreateFromHICON(iconHandle);
 #else
+	wxInitAllImageHandlers();
 	wxIcon icon;
 	wxMemoryInputStream stream(icon_message_box_process_ico, icon_message_box_process_ico_len);
-	wxImage image(stream, wxBITMAP_TYPE_PNG);
+	wxImage image(stream, wxBITMAP_TYPE_ICO);
 	icon.CopyFromBitmap(wxBitmap(image));
 #endif
 	parsedArgs = parseArgs(wxApp::argc, wxApp::argv);

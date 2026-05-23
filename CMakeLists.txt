@@ -126,6 +126,9 @@ function(link_to_wxWidgets target)
 			# Because of this, a custom PKGBUILD might be necessary
 			# I'm considering just creating a mingw-w64-zlib-static package for the AUR to account for this
 			z
+			# zstd and lzma suddenly need to be added for some reason? Unclear why, might be related to image usage
+			zstd
+			lzma
 			tiff
 			kernel32
 			atomic
