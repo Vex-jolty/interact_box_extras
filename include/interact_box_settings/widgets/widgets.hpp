@@ -1,5 +1,4 @@
 #pragma once
-//#include "../../interact_box_settings.hpp"
 #include "errors/interact_box_exceptions.hpp"
 #include "../structs/setting.hpp"
 #include "string_helper.hpp"

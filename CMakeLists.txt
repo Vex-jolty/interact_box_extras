@@ -2,42 +2,16 @@ cmake_minimum_required(VERSION 3.10)
 
 project(interact_box_extras VERSION 1.2.2)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	if (NOT MINGW)
-		message(FATAL_ERROR "${CMAKE_CXX_COMPILER_ID} is not a currently supported compiler")
-	endif()
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-
-else()
-	message(FATAL_ERROR "${CMAKE_SYSTEM_NAME} is not a currently supported operating system")
-endif()
-
-if (NOT BUILDING_FULL_PACKAGE)
-	add_subdirectory(${CMAKE_SOURCE_DIR}/interact_box_libs)
+if(NOT DEFINED OS_FLAVOR)
+  message(FATAL_ERROR 
+    "This submodule cannot be built standalone. "
+    "Please configure from the root project directory."
+  )
 endif()
 
 set(TARGET_LINUX_GUI "qt" CACHE STRING "The GUI to use on Linux")
 
 set_property(CACHE TARGET_LINUX_GUI PROPERTY STRINGS gtk3 qt)
-
-set(TARGET_WINDOWS_VERSION "win98" CACHE STRING "The version of Windows to target (win98, winme, win2k, winxp, vista, win7, win8, win10, win11)")
-
-set_property(CACHE TARGET_WINDOWS_VERSION PROPERTY STRINGS
-	win98 winme win2k winxp vista win7 win8 win10 win11
-)
-
-set(VERSIONS_THAT_REQUIRE_PTHREAD9X win98 winme win2k winxp)
-set(VERSIONS_THAT_REQUIRE_MSVCRT40 win98 winme win2k winxp)
-set(VERSIONS_THAT_REQUIRE_WRAPPERS win98 winme)
-
-if(NOT DEFINED TARGET_WINDOWS_VERSION)
-	set(TARGET_WINDOWS_VERSION "win98"
-		CACHE STRING "Target Windows version"
-	)
-endif()
 
 if (NOT DEFINED TARGET_LINUX_GUI)
 	set(TARGET_LINUX_GUI "qt"
@@ -45,19 +19,20 @@ if (NOT DEFINED TARGET_LINUX_GUI)
 	)
 endif()
 
-if (WIN32 AND TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_WRAPPERS)
+if (WIN32 AND REQ_WRAPPERS)
 	set(WX_VERSION "2.9")
-else()
+elseif(WIN32)
 	set(WX_VERSION "3.2")
+else()
+	set(WX_VERSION "3.3")
 endif()
 
 # This block is VERY SPECIFIC to the maintainer's setup
-#add_definitions(wxWidgets_ROOT_DIR ${CMAKE_PREFIX_PATH})
 if(WIN32)
 	if(CMAKE_C_COMPILER_TARGET)
 			set(WX_COMPILER_TRIPLET ${CMAKE_C_COMPILER_TARGET})
 	elseif(MINGW)
-		if(TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_MSVCRT40)
+		if(REQ_MSVCRT40)
 			set(WX_COMPILER_TRIPLET i686-w64-mingw32)
 		else()
 			set(WX_COMPILER_TRIPLET x86_64-w64-mingw32)
@@ -67,6 +42,7 @@ if(WIN32)
 	endif()
 	set(WXWIDGETS_INCLUDE_DIR "${CMAKE_PREFIX_PATH}/include/wx-${WX_VERSION}")
 	set(WXWIDGETS_SETUP_DIR "${CMAKE_PREFIX_PATH}/lib/wx/include/${WX_COMPILER_TRIPLET}-msw-unicode-static-${WX_VERSION}")
+	message(STATUS "setup dir ${WXWIDGETS_SETUP_DIR}")
 endif()
 
 add_library(mingw_64_compat STATIC src/compat/mingw_64_compat.cpp)
@@ -169,7 +145,6 @@ function(link_to_wxWidgets target)
 
 		separate_arguments(WX_LD_FLAGS)
 
-		set(WX_VERSION "3.3")
 		set(WX_LIBS_TO_LINK 
 			${WX_LD_FLAGS}
 			X11
@@ -289,7 +264,7 @@ add_subdirectory(src/interact_box_settings)
 add_subdirectory(src/malware_date_settings)
 add_subdirectory(src/message_box_process)
 add_subdirectory(src/trivia_game)
-if (LINUX OR (WIN32 AND NOT TARGET_WINDOWS_VERSION IN_LIST VERSIONS_THAT_REQUIRE_WRAPPERS))
+if (LINUX OR (WIN32 AND NOT OS_FLAVOR STREQUAL "98"))
 	add_subdirectory(src/tts_process)
 	list(APPEND TARGETS_FOR_EXPORT tts_process)
 endif()
