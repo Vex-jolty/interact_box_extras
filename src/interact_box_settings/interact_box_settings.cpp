@@ -7,7 +7,7 @@ using namespace Structs;
 
 Json::Value jsonSettings;
 #if defined(WIN32)
-string filePath = "C:\\WINDOWS\\interact_box_config.json";
+string filePath = FileHelper::getConfigDirectory() + "\\interact_box_config.json";
 	#if WINVER > _WIN32_WINNT_NT4
 string workingDirectory = FileHelper::getWorkingDirectoryAsString();
 	#else

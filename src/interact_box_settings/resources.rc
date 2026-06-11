@@ -11,3 +11,6 @@
 #else
 	IDI_ICON ICON "icon/config_icon-win10.ico"
 #endif
+#if WINVER >= _WIN32_WINNT_VISTA
+  1 24 "app.manifest"
+#endif
