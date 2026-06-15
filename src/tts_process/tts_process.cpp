@@ -6,7 +6,7 @@ using namespace std;
 void loadFileInResource(int name, DWORD& size, const char*& data) {
 	HMODULE handle = ::GetModuleHandle(NULL);
 	if (!handle)
-		throw InteractBoxException(ErrorCodes::CannotFindResource);
+		throw InteractBoxException(ErrorCodes::ErrorCode::CannotFindResource);
 	HRSRC rc = FindResource(handle, MAKEINTRESOURCE(name), RT_RCDATA);
 	HGLOBAL rcData = LoadResource(handle, rc);
 	size = SizeofResource(handle, rc);
@@ -111,7 +111,7 @@ int main(int argc, char const* argv[]) {
 	string input = argv[1];
 	vector<string> bannedWords = loadBannedWords();
 	replaceBannedWords(input, bannedWords, " [REDACTED] ");
-	if (system("which spd-say") != 0) throw InteractBoxException(ErrorCodes::NoSuchFiles, "spd-say");
+	if (system("which spd-say") != 0) throw InteractBoxException(ErrorCodes::ErrorCode::NoSuchFiles, "spd-say");
 	system(("spd-say " + input).c_str());
 	return 0;
 }

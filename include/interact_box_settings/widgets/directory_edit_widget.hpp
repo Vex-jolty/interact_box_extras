@@ -11,19 +11,27 @@ class DirectoryEditWidget : public wxPanel {
 			std::string name,
 			Json::Value& jsonSettings
 		)
-				: _name(name), _jsonSettings(jsonSettings) {
-			std::regex isFullPathPattern(R"([A-Z]:\\.*)");
+				: _name(name),
+					_jsonSettings(jsonSettings) {
 			Create(parent, id);
+#ifdef WIN32
+			std::regex isFullPathPattern(R"([A-Z]:\\.*)");
 			bool isFullPath = std::regex_match(_jsonSettings[_name].asString(), isFullPathPattern);
 			if (!isFullPath) {
-#if defined(WIN32) && WINVER > _WIN32_WINNT_NT4
+	#if WINVER > _WIN32_WINNT_NT4
 				_jsonSettings[_name] =
 					FileHelper::getWorkingDirectoryAsString() + "\\" + _jsonSettings[_name].asString();
-#else
+	#else
 				_jsonSettings[_name] =
 					FileHelper::getWorkingDirectory() + "\\" + _jsonSettings[_name].asString();
-#endif
+	#endif
 			}
+#else
+				bool isFullPath = _name.starts_with("/");
+				if (!isFullPath) {
+					_jsonSettings[_name] = "/etc/interact-box/" + _jsonSettings[_name].asString();
+				}
+#endif
 			auto sizer = new wxBoxSizer(wxHORIZONTAL);
 			int textControlId = id * 5;
 			_textControl = new wxTextCtrl(this, textControlId, _jsonSettings[_name].asString());

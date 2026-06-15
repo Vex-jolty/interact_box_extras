@@ -25,7 +25,7 @@ bool AutorunToggleWidget::getAutorunStatus() {
 	long result = RegOpenKeyExA(HKEY_CURRENT_USER, _regKeyToOpen.c_str(), 0, KEY_QUERY_VALUE, &hKey);
 	#endif
 	if (result != ERROR_SUCCESS)
-		throw InteractBoxException(ErrorCodes::CannotOpenRegistryKey, _regKeyToOpen);
+		throw InteractBoxException(ErrorCodes::ErrorCode::CannotOpenRegistryKey, _regKeyToOpen);
 
 	#if WINVER > _WIN32_WINNT_NT4
 	result =
@@ -50,7 +50,7 @@ bool AutorunToggleWidget::toggleAutorun(bool autorunIsEnabled) {
 		);
 	#endif
 		if (result != ERROR_SUCCESS)
-			throw InteractBoxException(ErrorCodes::CannotOpenRegistryKey, _regKeyToOpen);
+			throw InteractBoxException(ErrorCodes::ErrorCode::CannotOpenRegistryKey, _regKeyToOpen);
 		if (autorunIsEnabled) {
 	#if WINVER > _WIN32_WINNT_NT4
 			result = RegDeleteValue(hKey, _interactBoxKeyName.c_str());
@@ -59,7 +59,7 @@ bool AutorunToggleWidget::toggleAutorun(bool autorunIsEnabled) {
 	#endif
 			if (result != ERROR_SUCCESS) {
 				RegCloseKey(hKey);
-				throw InteractBoxException(ErrorCodes::CannotDeleteRegistryKey, _regKeyToOpen);
+				throw InteractBoxException(ErrorCodes::ErrorCode::CannotDeleteRegistryKey, _regKeyToOpen);
 			}
 			RegCloseKey(hKey);
 			return true;
@@ -79,7 +79,7 @@ bool AutorunToggleWidget::toggleAutorun(bool autorunIsEnabled) {
 	#endif
 		if (result != ERROR_SUCCESS) {
 			RegCloseKey(hKey);
-			throw InteractBoxException(ErrorCodes::CannotSetRegistryKey, _regKeyToOpen);
+			throw InteractBoxException(ErrorCodes::ErrorCode::CannotSetRegistryKey, _regKeyToOpen);
 		}
 		RegCloseKey(hKey);
 		return true;

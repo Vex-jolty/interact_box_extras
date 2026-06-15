@@ -4,8 +4,8 @@ using namespace std;
 
 #ifdef WIN32
 map<wstring, wstring> parsedArgs;
-vector<wstring> buttonsToCapitalize = {L"OK",	 L"Help",		L"Abort",		 L"Retry", L"Ignore",
-																			 L"Try", L"Cancel", L"Continue", L"Yes",	 L"No"};
+vector<wstring> buttonsToCapitalize = { L"OK",	L"Help",	 L"Abort",		L"Retry", L"Ignore",
+																				L"Try", L"Cancel", L"Continue", L"Yes",		L"No" };
 vector<DefaultButtonOption> defaultOptions = {
 	DefaultButtonOption(
 		{
@@ -17,7 +17,7 @@ vector<DefaultButtonOption> defaultOptions = {
 			L"a;r;i",
 			L"abort;retry;ignore",
 		},
-		{L"Abort", L"Retry", L"Ignore"}
+		{ L"Abort", L"Retry", L"Ignore" }
 	),
 	DefaultButtonOption(
 		{
@@ -29,28 +29,28 @@ vector<DefaultButtonOption> defaultOptions = {
 			L"c;t;c",
 			L"cancel;try;continue",
 		},
-		{L"Cancel", L"Try", L"Continue"}
+		{ L"Cancel", L"Try", L"Continue" }
 	),
-	DefaultButtonOption({L"help", L"h"}, {L"Help"}),
+	DefaultButtonOption({ L"help", L"h" }, { L"Help" }),
 	DefaultButtonOption(
-		{L"ok/cancel", L"oc", L"kc", L"o/c", L"k/c", L"o c", L"k c", L"cancel", L"ok cancel",
-		 L"ok;cancel", L"k;c", L"o;c"},
-		{L"OK", L"Cancel"}
-	),
-	DefaultButtonOption(
-		{L"retry/cancel", L"rc", L"r/c", L"r c",
-		 L"retry cancel"
-		 L"r;c",
-		 L"retry;cancel"},
-		{L"Retry", L"Cancel"}
+		{ L"ok/cancel", L"oc", L"kc", L"o/c", L"k/c", L"o c", L"k c", L"cancel", L"ok cancel",
+			L"ok;cancel", L"k;c", L"o;c" },
+		{ L"OK", L"Cancel" }
 	),
 	DefaultButtonOption(
-		{L"yes/no", L"yn", L"y/n", L"y n", L"yes no", L"y;n", L"yes;no"},
-		{L"Yes", L"No"}
+		{ L"retry/cancel", L"rc", L"r/c", L"r c",
+			L"retry cancel"
+			L"r;c",
+			L"retry;cancel" },
+		{ L"Retry", L"Cancel" }
 	),
 	DefaultButtonOption(
-		{L"yes/no/cancel", L"ync", L"y/n/c", L"y n c", L"yes no cancel", L"y;n;c", L"yes;no;cancel"},
-		{L"Yes", L"No", L"Cancel"}
+		{ L"yes/no", L"yn", L"y/n", L"y n", L"yes no", L"y;n", L"yes;no" },
+		{ L"Yes", L"No" }
+	),
+	DefaultButtonOption(
+		{ L"yes/no/cancel", L"ync", L"y/n/c", L"y n c", L"yes no cancel", L"y;n;c", L"yes;no;cancel" },
+		{ L"Yes", L"No", L"Cancel" }
 	)
 };
 
@@ -67,7 +67,7 @@ long getBoxType(wstring typeString) {
 }
 
 map<wstring, wstring> parseArgs(int argc, wxCmdLineArgsArray& argv) {
-	vector<wstring> keys = {L"title", L"content", L"type", L"buttons"};
+	vector<wstring> keys = { L"title", L"content", L"type", L"buttons" };
 	map<wstring, wstring> parsedArgs;
 	if (argc < 4) {
 		throw runtime_error("Less than 4 arguments passed!");
@@ -104,10 +104,11 @@ CustomBox* createBox(wstring title, wstring message, wstring typeString, wstring
 
 vector<wstring> parseButtons(wstring buttonsString) {
 	for (auto& option : defaultOptions) {
-		if (any_of(
-					option.validInputs.begin(), option.validInputs.end(),
-					[&buttonsString](wstring item) { return boost::iequals(item, buttonsString); }
-				)) {
+		if (
+			any_of(option.validInputs.begin(), option.validInputs.end(), [&buttonsString](wstring item) {
+				return boost::iequals(item, buttonsString);
+			})
+		) {
 			return option.resultingButtons;
 		}
 	}
@@ -125,8 +126,8 @@ vector<wstring> parseButtons(wstring buttonsString) {
 
 #else
 map<string, string> parsedArgs;
-vector<string> buttonsToCapitalize = {"OK",	 "Help",	 "Abort",		 "Retry", "Ignore",
-																			"Try", "Cancel", "Continue", "Yes",		"No"};
+vector<string> buttonsToCapitalize = { "OK",	"Help",		"Abort",		"Retry", "Ignore",
+																			 "Try", "Cancel", "Continue", "Yes",	 "No" };
 vector<DefaultButtonOption> defaultOptions = {
 	DefaultButtonOption(
 		{
@@ -138,7 +139,7 @@ vector<DefaultButtonOption> defaultOptions = {
 			"a;r;i",
 			"abort;retry;ignore",
 		},
-		{"Abort", "Retry", "Ignore"}
+		{ "Abort", "Retry", "Ignore" }
 	),
 	DefaultButtonOption(
 		{
@@ -150,25 +151,25 @@ vector<DefaultButtonOption> defaultOptions = {
 			"c;t;c",
 			"cancel;try;continue",
 		},
-		{"Cancel", "Try", "Continue"}
+		{ "Cancel", "Try", "Continue" }
 	),
-	DefaultButtonOption({"help", "h"}, {"Help"}),
+	DefaultButtonOption({ "help", "h" }, { "Help" }),
 	DefaultButtonOption(
-		{"ok/cancel", "oc", "kc", "o/c", "k/c", "o c", "k c", "cancel", "ok cancel", "ok;cancel", "k;c",
-		 "o;c"},
-		{"OK", "Cancel"}
+		{ "ok/cancel", "oc", "kc", "o/c", "k/c", "o c", "k c", "cancel", "ok cancel", "ok;cancel",
+			"k;c", "o;c" },
+		{ "OK", "Cancel" }
 	),
 	DefaultButtonOption(
-		{"retry/cancel", "rc", "r/c", "r c",
-		 "retry cancel"
-		 "r;c",
-		 "retry;cancel"},
-		{"Retry", "Cancel"}
+		{ "retry/cancel", "rc", "r/c", "r c",
+			"retry cancel"
+			"r;c",
+			"retry;cancel" },
+		{ "Retry", "Cancel" }
 	),
-	DefaultButtonOption({"yes/no", "yn", "y/n", "y n", "yes no", "y;n", "yes;no"}, {"Yes", "No"}),
+	DefaultButtonOption({ "yes/no", "yn", "y/n", "y n", "yes no", "y;n", "yes;no" }, { "Yes", "No" }),
 	DefaultButtonOption(
-		{"yes/no/cancel", "ync", "y/n/c", "y n c", "yes no cancel", "y;n;c", "yes;no;cancel"},
-		{"Yes", "No", "Cancel"}
+		{ "yes/no/cancel", "ync", "y/n/c", "y n c", "yes no cancel", "y;n;c", "yes;no;cancel" },
+		{ "Yes", "No", "Cancel" }
 	)
 };
 long getBoxType(string typeString) {
@@ -184,7 +185,7 @@ long getBoxType(string typeString) {
 }
 
 map<string, string> parseArgs(int argc, wxCmdLineArgsArray& argv) {
-	vector<string> keys = {"title", "content", "type", "buttons"};
+	vector<string> keys = { "title", "content", "type", "buttons" };
 	map<string, string> parsedArgs;
 	if (argc < 4) {
 		throw runtime_error("Less than 4 arguments passed!");
@@ -218,6 +219,8 @@ CustomBox* createBox(string title, string message, string typeString, string but
 }
 
 vector<string> parseButtons(string buttonsString) {
+	if (buttonsString.empty())
+		return { "OK" };
 	for (auto& option : defaultOptions) {
 		if (any_of(option.validInputs.begin(), option.validInputs.end(), [&buttonsString](string item) {
 					return boost::iequals(item, buttonsString);

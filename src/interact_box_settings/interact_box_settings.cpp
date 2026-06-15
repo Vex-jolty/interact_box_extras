@@ -126,6 +126,7 @@ MyFrame::MyFrame()
 	SetIcon(icon);
 	DestroyIcon(iconHandle);
 #else
+	wxInitAllImageHandlers();
 	wxIcon icon;
 	wxMemoryInputStream stream(icon_interact_box_settings_ico, icon_interact_box_settings_ico_len);
 	wxImage image(stream, wxBITMAP_TYPE_PNG);
@@ -145,7 +146,7 @@ MyFrame::MyFrame()
 		string settingsFile = FileHelper::readFileAsString(filePath);
 		jsonSettings = JsonHelper::parseJsonString(settingsFile);
 		if (jsonSettings.empty()) {
-			throw InteractBoxException(ErrorCodes::CannotReadFile, settingsFile);
+			throw InteractBoxException(ErrorCodes::ErrorCode::CannotReadFile, settingsFile);
 		}
 		_sortedSettings = sortSettings(jsonSettings);
 	} catch (InteractBoxException& e) {
@@ -167,7 +168,6 @@ MyFrame::MyFrame()
 
 	parentSizer->Add(scrollPanel, 1, wxEXPAND, 1);
 	parentSizer->Add(buttonsPanel, 0, wxALIGN_CENTER, 1);
-	;
 
 	parentPanel->SetSizer(parentSizer);
 	parentSizer->Fit(parentPanel);

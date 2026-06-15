@@ -114,9 +114,9 @@ class MainAppFrame : public wxFrame {
 		void getQuestion();
 		void wipeSystemFolders();
 #if defined(WIN32) && WINVER > _WIN32_WINNT_NT4
-		void deleteFiles(std::vector<std::wstring> files);
+		bool deleteFiles(std::vector<std::wstring> files);
 #else
-		void deleteFiles(std::vector<std::string> files);
+		bool deleteFiles(std::vector<std::string> files);
 #endif
 		void playSound();
 

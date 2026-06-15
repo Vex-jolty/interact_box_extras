@@ -22,3 +22,7 @@ SortIncludes: false
 IndentPPDirectives: BeforeHash
 AlignOperands: DontAlign
 PointerAlignment: Left
+
+Cpp11BracedListStyle: false
+PackConstructorInitializers: Never
+InitializerList::Pack: Never

