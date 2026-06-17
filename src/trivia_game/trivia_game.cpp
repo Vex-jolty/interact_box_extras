@@ -195,17 +195,23 @@ MainAppFrame::MainAppFrame()
 	int height = 800;
 #endif
 	wxSize size(width, height);
+	this->SetMaxSize(size);
 	_panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, size);
+	_panel->SetMaxSize(size);
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 	getQuestion();
 	wxStaticText* text = new wxStaticText(
 #ifdef WIN32
 		_panel, QUESTION_ID, StringHelper::stringToWideString(_randomQuestion.question)
 #else
-		_panel, QUESTION_ID, _randomQuestion.question
+		_panel, QUESTION_ID, _randomQuestion.question, wxDefaultPosition, wxDefaultSize,
+		wxST_NO_AUTORESIZE
 #endif
 	);
-
+	text->SetFont(this->GetFont().Scale(1.25));
+#ifdef __linux__
+	text->Wrap(static_cast<int>(width * 0.8));
+#endif
 #ifdef WIN32
 	const wstring timeTextString = L"You have 10 seconds";
 	const wstring submitString = L"Submit";
@@ -214,12 +220,15 @@ MainAppFrame::MainAppFrame()
 	const string submitString = "Submit";
 #endif
 	_timeText = new wxStaticText(_panel, TIME_TEXT_ID, timeTextString);
-	text->SetFont(this->GetFont().Scale(1.25));
 	_timeText->SetFont(this->GetFont().MakeBold());
+#ifdef WIN32
 	sizer->Add(text, 1, wxEXPAND, 2);
+#else
+	sizer->Add(text, 1, wxEXPAND | wxALL, 2);
+#endif
 	sizer->Add(_timeText, 1, wxEXPAND, 1);
 	MainAppFrame::displayQuestion(sizer, _panel);
-	
+
 	_submitButton = new wxButton(_panel, SUBMIT_BUTTON_ID, submitString);
 	_submitButton->Disable();
 	sizer->Add(_submitButton, 1, wxEXPAND, 2);
