@@ -154,6 +154,10 @@ endfunction()
 
 function(add_version_resource target)
 	if(WIN32)
+		set(PRODUCT_NAME "${PRODUCT_FLAVOR}")
+		string(TIMESTAMP CURRENT_YEAR "%Y")
+		set(COMPANY_NAME "Vex the Jolteon")
+		set(COPYRIGHT "© ${COMPANY_NAME} 2024-${CURRENT_YEAR}")
 		set(INTERNAL_NAME "${target}.exe")
 		set(ORIGINAL_FILENAME "${target}.exe")
 
@@ -161,12 +165,18 @@ function(add_version_resource target)
 			"." "," VERSION_STRING ${CMAKE_PROJECT_VERSION}
 		)
 
+		if(target STREQUAL "interact_box")
+			set(SOURCE_RC ${CMAKE_CURRENT_SOURCE_DIR}/src/version.rc.in)
+		else()
+			set(SOURCE_RC ${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in)
+		endif()
+
 		set(OUT_RC
 			${CMAKE_CURRENT_BINARY_DIR}/${target}_version.rc
 		)
 
 		configure_file(
-			${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in
+			${SOURCE_RC}
 			${OUT_RC}
 			@ONLY
 		)
