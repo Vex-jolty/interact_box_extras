@@ -51,7 +51,7 @@ int MyFrame::getSettingPositionPriorityByName(
 }
 
 vector<pair<string, Json::Value>> MyFrame::sortSettings(Json::Value& initialSettings) {
-	unordered_map<std::string, int> namePriorities = {{"host", 1}, {"port", 2}};
+	unordered_map<std::string, int> namePriorities = { { "host", 1 }, { "port", 2 } };
 
 	std::vector<std::pair<std::string, Json::Value>> entries;
 
@@ -88,7 +88,14 @@ bool askToSave() {
 	return response == wxYES;
 }
 
-void restartInteractBox() {
+void handleError(string errorMessage) {
+	wxMessageBox(errorMessage, "INTERACT BOX SETTINGS ERROR", wxICON_ERROR);
+}
+
+void MyFrame::restartInteractBox() {
+	PID pid = ProcessHelper::getProcessId(interactBoxPath);
+	if (pid == -1) return;
+
 	int response = wxMessageBox(
 		"In order to apply the settings, Interact Box must be restarted. Would you like to restart it "
 		"now?",
@@ -96,16 +103,26 @@ void restartInteractBox() {
 	);
 	if (response != wxYES)
 		return;
-	ProcessHelper::killProcess(interactBoxPath);
+	try {
+		ProcessHelper::killProcess(interactBoxPath);
+	} catch (InteractBoxException& e) {
+		handleError(e.what());
+		return;
+	}
 #ifdef WIN32
 	ShellExecuteA(NULL, "open", interactBoxPath.c_str(), NULL, workingDirectory.c_str(), SW_SHOW);
 #else
-	system(interactBoxPath.c_str());
+	if (wxFileExists("/etc/systemd/system/interact-box.service")) {
+		const long result = wxExecute("systemctl status interact-box");
+		if (result != 0) {
+			handleError("Unable to restart Interact Box");
+			return;
+		}
+		wxExecute("systemctl restart interact-box");
+		return;
+	}
+	wxExecute(interactBoxPath.c_str(), wxEXEC_ASYNC | wxEXEC_MAKE_GROUP_LEADER);
 #endif
-}
-
-void handleError(string errorMessage) {
-	wxMessageBox(errorMessage, "INTERACT BOX SETTINGS ERROR", wxICON_ERROR);
 }
 
 bool InteractBoxSettings::OnInit() {
@@ -129,8 +146,7 @@ MyFrame::MyFrame()
 	wxInitAllImageHandlers();
 	wxIcon icon;
 	wxMemoryInputStream stream(icon_interact_box_settings_ico, icon_interact_box_settings_ico_len);
-	wxImage image(stream, wxBITMAP_TYPE_PNG);
-	image.AddHandler(new wxPNGHandler);
+	wxImage image(stream, wxBITMAP_TYPE_ICO);
 	icon.CopyFromBitmap(wxBitmap(image));
 #endif
 	vector<ArrayEditWidget*> arraySettings;

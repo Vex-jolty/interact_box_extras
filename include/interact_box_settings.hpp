@@ -4,6 +4,11 @@
 #include <wx/wx.h>
 #ifdef __linux__
 	#include <wx/mstream.h>
+	#include <wx/process.h>
+	#include <wx/filefn.h>
+	#define PID pid_t
+#else
+	#define PID DWORD
 #endif
 #include "interact_box_settings/widgets/widgets_exported.hpp"
 #include "interact_box_settings_include/resources.h"
@@ -23,6 +28,7 @@ class MyFrame : public wxFrame {
 		MyFrame();
 
 	private:
+		void restartInteractBox();
 		void parseSettings(wxPanel* panel, wxBoxSizer* sizer);
 		void OnSave(wxCommandEvent& event);
 		void OnExit(wxCommandEvent& event);
