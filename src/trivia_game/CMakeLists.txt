@@ -1,4 +1,4 @@
-project(trivia_game VERSION 1.2.2)
+project(trivia_game VERSION 1.2.3)
 
 set(MAIN_QUESTIONS_FILE questions.json)
 set(FALLBACK_QUESTIONS_FILE questions.example.json)

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(interact_box_extras VERSION 1.2.2)
+project(interact_box_extras VERSION 1.2.3)
 
 if(NOT DEFINED OS_FLAVOR)
   message(FATAL_ERROR 

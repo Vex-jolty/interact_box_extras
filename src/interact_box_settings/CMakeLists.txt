@@ -1,4 +1,4 @@
-project(interact_box_settings VERSION 1.2.2)
+project(interact_box_settings VERSION 1.2.3)
 
 set(TARGET_FILES ${PROJECT_NAME}.cpp
 	widgets/array_edit_widget.cpp
